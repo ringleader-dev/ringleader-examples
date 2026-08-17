@@ -1,0 +1,10 @@
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local pipeline output — examples write these into the working directory
+*.db

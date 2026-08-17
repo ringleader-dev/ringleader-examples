@@ -4,6 +4,8 @@ Run [ToolHive](https://github.com/stacklok/toolhive), Stacklok's platform for
 running and managing MCP servers, inside a Ringleader workstation, and give a
 coding agent tools it did not have before.
 
+Ringleader is not affiliated with or endorsed by Stacklok.
+
 ## Why these fit together
 
 ToolHive runs each MCP server in a container, so it needs a container runtime.
@@ -175,5 +177,3 @@ Written against ToolHive's
 [documented install method](https://docs.stacklok.com/toolhive/guides-cli/install)
 and [CLI quickstart](https://docs.stacklok.com/toolhive/tutorials/quickstart-cli).
 Pinned at v0.42.1, current as of August 2026.
-
-Not affiliated with or endorsed by Stacklok.

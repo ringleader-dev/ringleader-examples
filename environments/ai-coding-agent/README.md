@@ -7,7 +7,7 @@ credentials, or anything you did not put in this file.
 ## Run it
 
 ```bash
-rl apply -f agent-box.yaml
+rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/environments/ai-coding-agent/agent-box.yaml
 rl workstation wait agent-box --for condition=Configured --timeout 15m -n local
 rl shell agent-box -n local
 ```
@@ -45,7 +45,7 @@ Node and the browser passthrough, on Debian 13, and nothing you did not declare.
 If it does something surprising, it does it somewhere you can delete:
 
 ```bash
-rl workstation delete -f agent-box.yaml -y
+rl workstation delete -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/environments/ai-coding-agent/agent-box.yaml -y
 ```
 
 Pass the manifest, not the workstation name: this file declares a

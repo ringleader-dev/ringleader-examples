@@ -4,12 +4,14 @@ Ready-to-run examples for [Ringleader](https://ringleader.dev): persistent,
 reproducible development environments for people and the AI agents working
 alongside them.
 
-Every example is a real manifest you can apply. Copy one, change what you need,
-and it is yours.
+Every example is a real manifest you can apply, and `-f` takes a URL as readily
+as a local path, so you can run any of them without cloning anything first.
 
 ```bash
-rl apply -f workstation.yaml
+rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/getting-started/01-hello-workstation/workstation.yaml
 ```
+
+Copy one, change what you need, and it is yours.
 
 ## Start here
 
@@ -38,6 +40,37 @@ are not affiliated with the projects below, and each example says so.
 | -- | -- |
 | [Stacklok ToolHive](with/stacklok-toolhive/) | Host MCP servers in a workstation that has the container runtime they need |
 | [dltHub](with/dlthub/) | Have your agent build a `dlt` data pipeline, in an environment as reproducible as the pipeline |
+
+## Applying by URL
+
+Each example gives you its commands with its own URL already filled in, so
+nothing you run needs a file on disk. `rl diff -f` and `rl workstation delete -f`
+take a URL on the same terms, which means you can preview an example before
+running it and remove it afterwards without ever cloning this repository.
+
+```bash
+rl diff -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/getting-started/01-hello-workstation/workstation.yaml
+```
+
+Two things worth knowing. The link has to be the **raw** one: a
+`github.com/.../blob/...` address serves the HTML page around the file, and
+applying that fails with a YAML parse error that does not explain itself. The
+**Raw** button on any file here gives you the right link. And these URLs point at
+`main`, so an example can change under you. Swap `main` for a commit SHA to pin
+one to a version that will not move.
+
+To edit an example rather than run it, take a copy:
+
+```bash
+git clone https://github.com/ringleader-dev/ringleader-examples.git
+```
+
+Or fetch a single file. That is what the one example needing edits before it
+will run asks you to do:
+
+```bash
+curl -O https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/dlthub/dlt-box-gcp.yaml
+```
 
 ## The idea
 
@@ -86,7 +119,7 @@ account needed.
   An example that silently changed under you would not be much of an argument
   for reproducibility. Each README says where to bump.
 - Every example includes its **clean-up** command, and it deletes by manifest
-  (`rl workstation delete -f <file> -y`) rather than by name. A manifest usually
+  (`rl workstation delete -f <manifest> -y`) rather than by name. A manifest usually
   declares more than a machine, and deleting the machine alone leaves the config
   behind to attach itself to whatever you create next.
 

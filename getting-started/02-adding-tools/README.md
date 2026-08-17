@@ -6,12 +6,16 @@ label. That indirection is the whole idea: one config can equip a whole team.
 ## Run it
 
 ```bash
-rl apply -f workstation.yaml
-rl apply -f tools.yaml
+rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/getting-started/02-adding-tools/workstation.yaml
+rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/getting-started/02-adding-tools/tools.yaml
 
 # Installing happens inside the VM, so wait for it to finish.
 rl workstation wait hello --for condition=Configured --timeout 15m -n local
 ```
+
+Two URLs because this example is two files, which is the point of it. If you
+cloned the repository, `rl apply -f workstation.yaml` and `rl apply -f tools.yaml`
+from this directory do the same thing.
 
 Then check the tools are really there:
 
@@ -61,8 +65,8 @@ itself, and `appliedConfigs` names the config that contributed them, with
 ## Clean up
 
 ```bash
-rl workstation delete -f workstation.yaml -y
-rl workstation delete -f tools.yaml -y
+rl workstation delete -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/getting-started/02-adding-tools/workstation.yaml -y
+rl workstation delete -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/getting-started/02-adding-tools/tools.yaml -y
 ```
 
 Once per file: `-f` takes a single manifest, and each of these declares one

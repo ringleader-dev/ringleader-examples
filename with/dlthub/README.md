@@ -23,7 +23,7 @@ something you declared, not something it inherited from your laptop.
 ## Run it
 
 ```bash
-rl apply -f dlt-box.yaml
+rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/dlthub/dlt-box.yaml
 rl workstation wait dlt-box --for condition=Configured --timeout 20m -n local
 rl shell dlt-box -n local
 ```
@@ -170,6 +170,13 @@ us: it is how the project and zone reach your VM, and if nothing matches you get
 `providerConfig.gcp requires both project and zone`, which names the symptom
 rather than the cause. The manifest says how to find yours.
 
+Because those are edits you make before applying, this is the one example in the
+repository to download rather than run from a link:
+
+```bash
+curl -O https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/dlthub/dlt-box-gcp.yaml
+```
+
 If you have not onboarded a cloud yet, start with the
 [GCP guide](https://docs.ringleader.dev/cloud-onboarding/gcp/). Azure and AWS are
 the same file with a different `provider:` and config block.
@@ -201,7 +208,7 @@ opt back in.
 ## Clean up
 
 ```bash
-rl workstation delete -f dlt-box.yaml -y
+rl workstation delete -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/dlthub/dlt-box.yaml -y
 ```
 
 Passing the manifest removes everything it declares: the workstation, the

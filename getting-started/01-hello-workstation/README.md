@@ -6,10 +6,14 @@ can shell into.
 ## Run it
 
 ```bash
-rl apply -f workstation.yaml
+rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/getting-started/01-hello-workstation/workstation.yaml
 rl workstation wait hello --for Ready --timeout 10m -n local
 rl shell hello -n local
 ```
+
+That URL is `workstation.yaml` in this directory. `-f` takes a local path just as
+happily, so `rl apply -f workstation.yaml` is the same command if you cloned the
+repository.
 
 The first run downloads a base image, so it takes a few minutes. Later
 workstations on the same image start much faster because the image is cached.
@@ -37,7 +41,7 @@ return to, not something you rebuild each morning.
 ## Clean up
 
 ```bash
-rl workstation delete -f workstation.yaml -y
+rl workstation delete -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/getting-started/01-hello-workstation/workstation.yaml -y
 ```
 
 This is immediate and final for that machine. Its disk and state are gone.

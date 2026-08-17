@@ -6,7 +6,7 @@ with the port forwarded back to your machine so it feels local.
 ## Run it
 
 ```bash
-rl apply -f ide-box.yaml
+rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/getting-started/03-browser-ide/ide-box.yaml
 rl workstation wait ide-box -n local --for condition=Configured --timeout 15m
 ```
 
@@ -45,7 +45,7 @@ Do not carry this setting into anything exposed on a network.
 ## Clean up
 
 ```bash
-rl workstation delete -f ide-box.yaml -y
+rl workstation delete -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/getting-started/03-browser-ide/ide-box.yaml -y
 ```
 
 Pass the manifest rather than the workstation name. `rl workstation delete

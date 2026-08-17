@@ -23,6 +23,10 @@
 # Azure is the same file with `provider:azure` and an `azure:` providerConfig
 # block. AWS likewise.
 #
+# Both of those are edits, so unlike the rest of the repository this one is
+# downloaded rather than applied from a link:
+#
+#   curl -O https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/dlthub/dlt-box-gcp.yaml
 #   rl apply -f dlt-box-gcp.yaml
 #   rl workstation wait dlt-box --for condition=Configured --timeout 20m -n your-namespace
 #   rl shell dlt-box -n your-namespace

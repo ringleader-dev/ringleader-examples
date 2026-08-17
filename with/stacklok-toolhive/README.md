@@ -25,7 +25,7 @@ accident and becomes something you can review in a pull request.
 ## Run it
 
 ```bash
-rl apply -f toolhive-box.yaml
+rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/stacklok-toolhive/toolhive-box.yaml
 rl workstation wait toolhive-box --for condition=Configured --timeout 20m -n local
 rl shell toolhive-box -n local
 ```
@@ -104,7 +104,7 @@ thv stop toolhive-doc-mcp
 From your own machine, not inside the box:
 
 ```bash
-rl workstation delete -f toolhive-box.yaml -y
+rl workstation delete -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/stacklok-toolhive/toolhive-box.yaml -y
 ```
 
 Passing the manifest removes everything it declares: the workstation, the

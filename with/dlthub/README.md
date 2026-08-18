@@ -44,9 +44,10 @@ devtool and the `LocalBinding` in the manifest doing their job.
 work. Give it something like:
 
 ```
-Using dlt, write and run a pipeline that loads the current Hacker News top
-stories into a local SQLite database called hackernews.db. Use the
-sqlalchemy destination, and merge on the story id so a second run refreshes
+Using dlt, write and run a pipeline that loads the current top 50 Hacker News
+stories into SQLite. Work in the home directory. The sqlalchemy destination is
+already configured on this machine, so pass destination="sqlalchemy" and set no
+credentials or path of your own. Merge on the story id so a second run refreshes
 rows rather than duplicating them.
 ```
 
@@ -54,7 +55,7 @@ Then look at what it produced:
 
 ```bash
 sqlite3 -header -column hackernews.db \
-  "select substr(title,1,50) as title, score, by from stories order by score desc limit 5;"
+  "select substr(title,1,50) as title, score, \"by\" from stories order by score desc limit 5;"
 ```
 
 <pre>
@@ -65,16 +66,15 @@ DeepSeek V4 Pro 0813                                676    explosion-s
 2026 Eclipse Webcams                                451    zoenolan
 </pre>
 
-Ask it to run the pipeline a second time and the row count should stay the same.
-That is the merge working. It is also the part of the brief an agent is most
-likely to skip, so check it.
+Ask it to run the pipeline again, then check that nothing was duplicated:
 
-**You will end up with more than one `.db` file, and that is correct.** SQLite
-has no schemas, so dlt gives each dataset its own database file, and a merge load
-needs a staging dataset. Expect `hackernews.db` next to a
-`hackernews__main_staging.db`. Do not ask the agent to collapse them into one
-file: it would be working against how the destination is designed, and the extra
-file is dlt doing its job.
+```bash
+sqlite3 hackernews.db "select count(*), count(distinct id) from stories;"
+```
+
+Two equal numbers is the merge working, and it is the part of the brief an agent
+most often skips. The total can creep past 50: merge updates the ids it sees and
+never deletes ones that have since dropped out of the top 50.
 
 ## Look at the data
 
@@ -98,11 +98,23 @@ work than writing `select` statements by hand.
 **Pick your table, then click Run query.** The dashboard does not fetch rows
 until you ask it to, so a table can look empty when it is not.
 
-**If it says "Could not connect to destination", your agent put the credentials
-inside `dlt.pipeline(...)`.** The dashboard is a separate process and resolves
-the destination from dlt's config, so it cannot see them. This box declares the
-destination in `~/.dlt/secrets.toml` so the code only has to name it
-(`destination="sqlalchemy"`). Worth correcting in the agent's version too.
+**When you are done, Ctrl+C stops it, and your shell may stop echoing what you
+type.** Type `reset` and press Enter, blind, and it comes back. The dashboard
+runs on marimo, which puts the terminal in raw mode and does not restore it on
+interrupt. Nothing is broken and nothing is lost.
+
+**If the dashboard connects but shows nothing, or `sqlite3` says `no such table:
+stories`, the agent sent the data somewhere else.** Both symptoms have one cause
+and one diagnosis. Ask the pipeline where it actually wrote:
+
+```bash
+dlt pipeline hackernews trace | grep "location to store data"
+```
+
+That prints the real path. If it is not `~/hackernews.db`, the agent configured a
+destination of its own, which overrides the box's, and every later command reads
+the wrong database. Tell the agent to use `destination="sqlalchemy"` with no
+credentials and no path, and run it again.
 
 Two smaller commands are useful without leaving the terminal:
 
@@ -242,7 +254,7 @@ the other two behind.
 **The environment is verified end to end**, by applying this manifest to a fresh
 workstation and following this README: the box configures, `dlt 1.30.0` is on the
 login shell's path, the reference pipeline is on the box, `python pipeline.py`
-loads 25 stories into SQLite, and a second run leaves the count unchanged, so the
+loads 50 stories into SQLite, and a second run leaves the count unchanged, so the
 merge behaviour is confirmed rather than assumed.
 
 The agent-authored path depends on your agent, so what it writes will vary. The

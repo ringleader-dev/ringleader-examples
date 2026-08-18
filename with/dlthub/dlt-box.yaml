@@ -52,13 +52,17 @@ spec:
           export PATH VIRTUAL_ENV="$HOME/.venvs/dlt"
         fi
 
+        # An env var is dlt's highest-priority config provider, so this wins over any
+        # .dlt/ an agent writes for itself and holds wherever a command is run from.
+        export DESTINATION__SQLALCHEMY__CREDENTIALS="sqlite:///$HOME/hackernews.db"
+
     - path: ~/pipeline.py
       mode: "0644"
       content: |
         """Load Hacker News top stories into a local SQLite database.
 
         A reference implementation, there to compare your agent's version against.
-        It does run, with no credentials and in about a minute:
+        It does run, with no credentials, in a couple of minutes:
 
             python pipeline.py
             sqlite3 hackernews.db "select title, score, by from stories limit 5;"
@@ -68,7 +72,7 @@ spec:
         import requests
 
         API = "https://hacker-news.firebaseio.com/v0"
-        STORY_LIMIT = 25
+        STORY_LIMIT = 50
 
 
         @dlt.resource(name="stories", write_disposition="merge", primary_key="id")
@@ -120,6 +124,7 @@ spec:
         MARIMO_VERSION: "0.23.16"
         PYARROW_VERSION: "25.0.1"
         IBIS_VERSION: "12.0.0"
+        NUMPY_VERSION: "2.5.2"
       content: |
         set -euo pipefail
         cd "$HOME"
@@ -139,7 +144,8 @@ spec:
         "$VENV/bin/pip" install \
           "marimo==${MARIMO_VERSION}" \
           "pyarrow==${PYARROW_VERSION}" \
-          "ibis-framework==${IBIS_VERSION}"
+          "ibis-framework==${IBIS_VERSION}" \
+          "numpy==${NUMPY_VERSION}"
 
         # secrets.toml, not config.toml: dlt refuses to read a credential from
         # config.toml. Absolute path, because the dashboard may run from elsewhere.

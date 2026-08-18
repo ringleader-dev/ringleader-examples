@@ -47,8 +47,9 @@ work. Give it something like:
 Using dlt, write and run a pipeline that loads the current top 50 Hacker News
 stories into SQLite. Work in the home directory. The sqlalchemy destination is
 already configured on this machine, so pass destination="sqlalchemy" and set no
-credentials or path of your own. Merge on the story id so a second run refreshes
-rows rather than duplicating them.
+credentials or path of your own. Name the pipeline hackernews, the dataset main,
+and the table stories. Merge on the story id so a second run refreshes rows
+rather than duplicating them.
 ```
 
 Then look at what it produced:
@@ -115,6 +116,13 @@ That prints the real path. If it is not `~/hackernews.db`, the agent configured 
 destination of its own, which overrides the box's, and every later command reads
 the wrong database. Tell the agent to use `destination="sqlalchemy"` with no
 credentials and no path, and run it again.
+
+**If a command says "Could not attach to pipeline hackernews", the agent named it
+something else.** Ask dlt what it actually created, and use that name instead:
+
+```bash
+ls ~/.dlt/pipelines/
+```
 
 Two smaller commands are useful without leaving the terminal:
 

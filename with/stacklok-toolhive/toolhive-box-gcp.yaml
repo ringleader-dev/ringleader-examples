@@ -1,20 +1,43 @@
+# The same ToolHive workstation, running in Google Cloud instead of on your laptop.
+#
+# BEFORE THIS WILL WORK, replace `your-namespace` in ALL THREE documents below and
+# set the label your own CloudIdentity selects on (see the comment on it). The
+# README explains both, and https://docs.ringleader.dev/cloud-onboarding/gcp/ has
+# the onboarding. Because those are edits, download this one rather than applying
+# it from a link:
+#
+#   curl -O https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/stacklok-toolhive/toolhive-box-gcp.yaml
 apiVersion: workstations.ringleader.dev/v1
 kind: Workstation
 metadata:
   name: toolhive-box
-  namespace: local
+  namespace: your-namespace
   labels:
     role: mcp-host
+    # THE LABEL THAT PICKS YOUR CloudIdentity — the one thing here you cannot copy
+    # from us. Find yours with `rl get cloudidentity -n <your-namespace> -o yaml`
+    # and use its spec.selector.matchLabels. If nothing matches, provisioning fails
+    # with `providerConfig.gcp requires both project and zone`.
+    cloud: gcp
 spec:
-  providerConfig:      # ToolHive pulls and runs container images; give it room
-    memory: 8   # GiB
-    cpus: 4
+  requirements: ["provider:gcp"]   # chooses the provider; the label above chooses the credentials
+
+  providerConfig:      # sizing lives HERE only — a WorkstationConfig cannot set it
+    gcp:
+      machineType: n2-standard-4
+      diskGiB: 60
+
+  # A cloud VM bills until it is deleted. Ringleader enforces this with no client
+  # running, so the box goes away even if you close your laptop and forget.
+  ttl: 8h
+  ttlAction: delete
+
 ---
 apiVersion: workstations.ringleader.dev/v1
 kind: WorkstationConfig
 metadata:
   name: toolhive
-  namespace: local
+  namespace: your-namespace
 spec:
   selector:
     matchLabels:
@@ -75,7 +98,7 @@ apiVersion: core.ringleader.dev/v1
 kind: LocalBinding
 metadata:
   name: toolhive-forward
-  namespace: local
+  namespace: your-namespace
 spec:
   enabled: true
   workstationSelector:

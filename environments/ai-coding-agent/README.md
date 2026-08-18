@@ -1,8 +1,12 @@
 # AI coding agent
 
 A governed home for a coding agent. It gets a real machine with real tools,
-and **not your laptop**. It cannot reach your other repositories, your
-credentials, or anything you did not put in this file.
+and **not your laptop**: none of your other repositories, none of the
+credentials on your disk, nothing on that machine you did not put in this file.
+
+What the box cannot bound is the account the agent signs in with. If yours has
+claude.ai connectors attached, they come with the account rather than the
+machine, and the agent can reach them from in here too.
 
 ## Run it
 

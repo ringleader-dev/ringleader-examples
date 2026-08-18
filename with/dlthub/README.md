@@ -57,13 +57,13 @@ sqlite3 -header -column hackernews.db \
   "select substr(title,1,50) as title, score, by from stories order by score desc limit 5;"
 ```
 
-```
+<pre>
 title                                               score  by
 --------------------------------------------------  -----  ---------------
 Tailscale Traces Database Corruption to 16y/o RAM   719    ropbear
 DeepSeek V4 Pro 0813                                676    explosion-s
 2026 Eclipse Webcams                                451    zoenolan
-```
+</pre>
 
 Ask it to run the pipeline a second time and the row count should stay the same.
 That is the merge working. It is also the part of the brief an agent is most

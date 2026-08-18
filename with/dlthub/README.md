@@ -175,6 +175,21 @@ repository to download rather than run from a link:
 
 ```bash
 curl -O https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/dlthub/dlt-box-gcp.yaml
+# edit `your-namespace` and the CloudIdentity label in all three documents, then:
+rl apply -f dlt-box-gcp.yaml
+rl workstation wait dlt-box --for condition=Configured --timeout 20m -n your-namespace
+rl shell dlt-box -n your-namespace
+```
+
+Everything after that is the same as the local box: the agent, the pipeline and the
+dashboard are unchanged.
+
+**A cloud VM bills until it is deleted**, so clean up when you are done. The manifest's
+`ttl: 8h` / `ttlAction: delete` is the backstop that runs even if you close your laptop
+and forget; deleting it yourself is faster and cheaper:
+
+```bash
+rl workstation delete -f dlt-box-gcp.yaml -y
 ```
 
 If you have not onboarded a cloud yet, start with the
@@ -201,9 +216,14 @@ environment:
 rl secret create bq-service-account --from-string value='<json>' -n local
 ```
 
-**Telemetry.** dlt sends anonymous usage data by default. This manifest turns it
-off with `RUNTIME__DLTHUB_TELEMETRY: "false"`, and says why. Delete that line to
-opt back in.
+**Telemetry.** dlt sends anonymous usage data by default, to
+`telemetry.scalevector.ai`. It is genuinely anonymous — a random id in
+`~/.dlt/.anonymous_id`, no account, no email — and it helps the project. This
+manifest turns it off anyway with `RUNTIME__DLTHUB_TELEMETRY: "false"`, because an
+example is a template people copy and a box that quietly talks to a third party is
+not a good default to spread. Declaring it in the manifest rather than letting the
+box write itself a config file is the point: outbound traffic is something a
+reviewer can see in the diff. Delete that line to opt back in.
 
 ## Clean up
 

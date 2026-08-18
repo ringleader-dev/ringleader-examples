@@ -1,17 +1,3 @@
-# A governed home for an AI coding agent.
-#
-# The agent gets a real machine with real tools, and NOT your laptop: it cannot
-# reach your other repositories, your credentials, or anything you did not put
-# in this file.
-#
-#   rl apply -f agent-box.yaml
-#   rl workstation wait agent-box --for condition=Configured --timeout 15m -n local
-#   rl shell agent-box -n local
-#   claude
-#
-# Clean up (the manifest, not the name: it declares three resources):
-#
-#   rl workstation delete -f agent-box.yaml -y
 apiVersion: workstations.ringleader.dev/v1
 kind: Workstation
 metadata:
@@ -31,9 +17,7 @@ spec:
     matchLabels:
       role: agent
 
-  # Pinned rather than left to the provider default, so "a Debian box" is
-  # something this file guarantees instead of something it happens to get.
-  image:
+  image:                 # pinned, so "a Debian box" is something this file guarantees
     os: linux
     distribution: debian
     version: "13"
@@ -44,19 +28,11 @@ spec:
 
   devtools:
     - name: nodejs                   # both agents below install through Node.js
-
-    # YOUR AGENT. This is the only agent-specific line in the file: swap it for
-    # `codex` and everything else here still applies. Anything else shipping an
-    # npm CLI can go in `packages` as `{type: npm, name: ...}` instead.
-    - name: claude-code
-
+    - name: claude-code              # YOUR AGENT — swap for `codex`; nothing else changes
     - name: passthrough-www-browser  # opt-in: capture browser opens from inside the VM
 ---
-# Sign-in happens in YOUR browser, even though the agent runs in the VM.
-#
-# Two halves make that work: autoForward carries the VM's listening ports back to
-# this device so the OAuth callback can land, and urlForward lets the VM ask your
-# host to open a URL.
+# Sign-in opens in YOUR browser: autoForward carries the VM's ports back so the
+# OAuth callback can land, and urlForward lets the VM ask your host to open the page.
 apiVersion: core.ringleader.dev/v1
 kind: LocalBinding
 metadata:

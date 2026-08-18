@@ -1,24 +1,3 @@
-# A Ringleader workstation for building data pipelines with dlt (dlthub).
-#
-# Why the two fit: a data pipeline is only reproducible if the environment around
-# it is. Python version, virtualenv, system libraries, and destination
-# credentials are the things that differ between laptops and make a
-# pipeline "work on mine". Declaring them here means a teammate, or an AI agent,
-# gets the same pipeline environment, byte for byte.
-#
-# The box comes with dlt installed and an AI agent that can use it, so the demo
-# is not "run our script". It is watching an agent build a working pipeline
-# inside an environment you declared. A reference pipeline ships under `files`
-# so there is still a fixed, runnable artifact to compare against.
-#
-#   rl apply -f dlt-box.yaml
-#   rl workstation wait dlt-box --for condition=Configured --timeout 20m -n local
-#   rl shell dlt-box -n local
-#   claude          # or codex, if that is the agent you put in the config below
-#
-# Clean up:
-#
-#   rl workstation delete -f dlt-box.yaml -y
 apiVersion: workstations.ringleader.dev/v1
 kind: Workstation
 metadata:
@@ -38,10 +17,7 @@ spec:
     matchLabels:
       role: data-pipeline
 
-  # Pinned explicitly. The packages below are Debian package names and the
-  # Python version matters to dlt, so leaving the image to the provider default
-  # would make this example depend on which provider you happen to be on.
-  image:
+  image:               # pinned: the packages below are Debian names and dlt cares about the Python
     os: linux
     distribution: debian
     version: "13"
@@ -49,43 +25,24 @@ spec:
   packages:
     - git
     - curl
-    # dlt needs Python 3.10+; Debian 13 ships 3.13. venv is a separate package
-    # on Debian and is the usual first thing to trip over.
     - python3
-    - python3-venv
+    - python3-venv     # dlt needs Python 3.10+ (Debian 13 ships 3.13); venv is a separate package here
     - python3-pip
-    # so you can actually look at what the pipeline wrote
     - sqlite3
 
   devtools:
-    - name: nodejs                   # both agents below install through Node.js
-
-    # YOUR AGENT. This is the only agent-specific line in the file: swap it for
-    # `codex` and everything else here still applies. Anything else shipping an
-    # npm CLI can go in `packages` as `{type: npm, name: ...}` instead.
-    - name: claude-code
-
-    # So the agent's sign-in opens on YOUR machine instead of printing a URL the
-    # VM cannot open. Needed by whichever agent you chose.
-    - name: passthrough-www-browser
+    - name: nodejs                   # both agents install through Node.js
+    - name: claude-code              # YOUR AGENT — swap for `codex`; nothing else changes
+    - name: passthrough-www-browser  # so the agent's sign-in opens on YOUR machine
 
   environment:
-    # dlt sends anonymous usage telemetry by default, to
-    # https://telemetry.scalevector.ai. It is genuinely anonymous (a random id
-    # in ~/.dlt/.anonymous_id, no account, no email) and it helps the project.
-    #
-    # It is off here anyway, because an example is a template people copy, and
-    # a box that quietly talks to a third party is not a good default to spread.
-    # Declaring it in the manifest rather than letting the box write itself a
-    # config file is the point: outbound traffic is something a reviewer can see
-    # in the diff. Delete these two lines to opt back in.
+    # Off by default here because an example is a template people copy, and a box that
+    # quietly talks to a third party is not a good default to spread. Delete to opt back in.
     RUNTIME__DLTHUB_TELEMETRY: "false"
 
   files:
-    # Put the venv on PATH for login shells. /etc/profile.d is read by the login
-    # shell `rl shell` opens; appending to ~/.bashrc instead would only work for
-    # interactive shells, because Debian's stock .bashrc returns early when the
-    # shell is not interactive.
+    # /etc/profile.d, not ~/.bashrc: Debian's stock .bashrc returns early when the shell
+    # is not interactive, so the venv would be missing from `rl shell box -- …`.
     - path: /etc/profile.d/dlt-venv.sh
       mode: "0644"
       content: |
@@ -100,10 +57,8 @@ spec:
       content: |
         """Load Hacker News top stories into a local SQLite database.
 
-        A reference implementation. The point of this example is to have your
-        agent write one of these, so treat this as something to compare against
-        rather than the thing to run, though it does run, with no credentials
-        and in about a minute.
+        A reference implementation, there to compare your agent's version against.
+        It does run, with no credentials and in about a minute:
 
             python pipeline.py
             sqlite3 hackernews.db "select title, score, by from stories limit 5;"
@@ -120,38 +75,27 @@ spec:
         def top_stories():
             """Yield the current top stories, one dict per story.
 
-            write_disposition="merge" with primary_key="id" means re-running
-            updates existing rows instead of duplicating them. Scores and
-            comment counts move, so a second run refreshes rather than appends.
+            merge + primary_key means a second run refreshes rows instead of
+            duplicating them, which matters because scores and comment counts move.
             """
             ids = requests.get(f"{API}/topstories.json", timeout=30).json()
             for story_id in ids[:STORY_LIMIT]:
                 item = requests.get(f"{API}/item/{story_id}.json", timeout=30).json()
                 if not item:
                     continue
-                # `kids` is a long list of comment ids that would become its own
-                # child table. Drop it: this example is about the stories.
-                item.pop("kids", None)
+                item.pop("kids", None)   # a long list of comment ids; it would become its own table
                 yield item
 
 
         def main():
             pipeline = dlt.pipeline(
                 pipeline_name="hackernews",
-                # Named, not configured inline. Where "sqlalchemy" actually
-                # points lives in ~/.dlt/secrets.toml, which the workstation
-                # wrote. The code says what kind of destination it wants and
-                # the environment says which one, so the same pipeline runs
-                # against SQLite here and BigQuery somewhere else without
-                # editing this file. It is also what lets
-                # `dlt pipeline hackernews show` read your data, since the
-                # dashboard resolves the destination the same way.
+                # Named, not configured inline: where "sqlalchemy" points lives in
+                # ~/.dlt/secrets.toml, which is also how `dlt pipeline … show` finds it.
                 destination="sqlalchemy",
-                # SQLite has no schemas, so dlt gives each dataset its own .db
-                # file. "main" puts the queryable tables in hackernews.db
-                # itself rather than a name-mangled sibling, and avoids the
-                # ATTACH-based locking dlt warns about for other names. The
-                # merge staging dataset still gets its own file alongside.
+                # SQLite has no schemas, so each dataset gets its own .db file. "main"
+                # keeps the queryable tables in hackernews.db rather than a mangled
+                # sibling, and avoids the ATTACH-based locking dlt warns about.
                 dataset_name="main",
             )
 
@@ -163,22 +107,16 @@ spec:
             main()
 
   scripts:
-    # A dedicated virtualenv rather than a system-wide pip install. Debian marks
-    # its Python as externally managed, so `pip install` outside a venv is
-    # refused (PEP 668), and a venv is what dlthub recommends anyway.
-    #
-    # VERSIONS ARE PINNED ON PURPOSE. A data pipeline whose dependencies drift is
-    # the problem this example exists to solve, so bump these deliberately.
     - name: install-dlt
       phase: user            # runs as the login user, in $HOME
       runPolicy: onChange
       failOnError: true
       timeoutSeconds: 600
       env:
+        # Pinned on purpose: a pipeline whose dependencies drift is the problem this
+        # example exists to solve. Bump deliberately.
         DLT_VERSION: "1.30.0"     # https://github.com/dlt-hub/dlt/releases
         VENV: ".venvs/dlt"
-        # What `dlt pipeline <name> show` runs on, installed up front so looking
-        # at your data is one command rather than a detour. About 340 MB.
         MARIMO_VERSION: "0.23.16"
         PYARROW_VERSION: "25.0.1"
         IBIS_VERSION: "12.0.0"
@@ -186,41 +124,25 @@ spec:
         set -euo pipefail
         cd "$HOME"
 
+        # A venv, not a system-wide pip install: Debian marks its Python externally
+        # managed, so pip outside a venv is refused (PEP 668).
         if [ ! -d "$VENV" ]; then
           python3 -m venv "$VENV"
         fi
 
-        # sqlalchemy is dlt's SQLite destination, so the examples write to a
-        # local .db file with nothing external to configure. Swap the extra for
-        # the destination you actually want: dlt[bigquery], dlt[snowflake],
-        # dlt[postgres], and so on. `requests` is what the sources use to call
-        # the APIs.
         "$VENV/bin/pip" install --upgrade pip
         "$VENV/bin/pip" install "dlt[sqlalchemy,hub]==${DLT_VERSION}" requests
 
-        # `dlt pipeline <name> show` needs BOTH halves and refuses with a
-        # different message for each, which is easy to fix one at a time and
-        # think you are done. The `hub` extra above enables the command; the
-        # three packages below are what it actually runs on.
+        # `dlt pipeline <name> show` needs BOTH halves and refuses with a different
+        # message for each: the `hub` extra above enables the command, the three
+        # packages below are what it actually runs on (about 340 MB).
         "$VENV/bin/pip" install \
           "marimo==${MARIMO_VERSION}" \
           "pyarrow==${PYARROW_VERSION}" \
           "ibis-framework==${IBIS_VERSION}"
 
-        # Declare the destination in dlt's own config, not in the pipeline code.
-        #
-        # This is what makes `dlt pipeline <name> show` able to read your data.
-        # The dashboard is a separate process: it re-resolves the destination
-        # from dlt's configuration providers, and finds nothing if the
-        # credentials only ever existed as an argument inside pipeline.py. You
-        # get a dashboard that renders the trace and the schema but reports
-        # "Could not connect to destination. Configuration values are missing."
-        #
-        # It has to be secrets.toml rather than config.toml: dlt refuses to read
-        # a credential from config.toml and says so.
-        #
-        # An absolute path, because the dashboard does not necessarily run from
-        # the same working directory the pipeline did.
+        # secrets.toml, not config.toml: dlt refuses to read a credential from
+        # config.toml. Absolute path, because the dashboard may run from elsewhere.
         mkdir -p "$HOME/.dlt"
         cat > "$HOME/.dlt/secrets.toml" <<TOML
         [destination.sqlalchemy]
@@ -230,11 +152,8 @@ spec:
 
         "$VENV/bin/dlt" --version
 ---
-# Sign-in happens in YOUR browser, even though the agent runs in the VM.
-#
-# autoForward carries the VM's listening ports back to this device so the OAuth
-# callback can land, and urlForward lets the VM ask your host to open the page.
-# Agent-agnostic: whichever agent you put in the config above needs both halves.
+# Sign-in opens in YOUR browser: autoForward carries the VM's ports back so the
+# OAuth callback can land, and urlForward lets the VM ask your host to open the page.
 apiVersion: core.ringleader.dev/v1
 kind: LocalBinding
 metadata:

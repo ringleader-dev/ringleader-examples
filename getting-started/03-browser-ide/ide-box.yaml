@@ -1,23 +1,9 @@
-# A fully configured workstation: VS Code in the browser, reachable from your
-# own machine at http://127.0.0.1:8080.
-#
-#   rl apply -f ide-box.yaml
-#   rl workstation wait ide-box -n local --for condition=Configured --timeout 15m
-#
-# The devtool installs are real network installs inside the VM and take a few
-# minutes. Wait on `Configured`, not `Ready`: `Ready` means the machine is up,
-# and code-server is installed after that.
-#
-# Clean up:
-#
-#   rl workstation delete -f ide-box.yaml -y
 apiVersion: workstations.ringleader.dev/v1
 kind: WorkstationConfig
 metadata:
   name: ide
   namespace: local
 spec:
-  # Attach to every workstation in this namespace whose labels match.
   selector:
     matchLabels:
       tier: dev
@@ -40,9 +26,8 @@ spec:
     - name: nodejs       # prerequisite for the npm-installed CLIs
     - name: vscode-web   # code-server
 
-  # Per-tool configuration, pushed to tools that are already installed. Serving
-  # on :8080 with no auth is safe here only because the forward below is
-  # loopback-only. Do not copy this into anything internet-facing.
+  # `auth: none` is safe here only because the forward below is loopback-only.
+  # Do not carry it into anything reachable from a network.
   toolconfigs:
     - id: vscode-web
       name: vscode-web
@@ -55,10 +40,7 @@ spec:
 
   securityUpdates: true
 
-  # Forwarding is NOT implicit. This makes the daemon seed a device-local
-  # LocalBinding once, when the box first reaches Running, forwarding every
-  # listening port back to the host 1:1.
-  defaultLocalBinding:
+  defaultLocalBinding:   # forwarding is not implicit; this seeds a device-local binding once
     enabled: true
     autoForward:
       forwardAll: true
@@ -71,9 +53,8 @@ metadata:
   labels:
     tier: dev          # matches the `ide` config's selector
 spec:
-  # VM sizing for local providers. NOTE: providerConfig is read from the
-  # Workstation spec ONLY (it is not merged from config layers), so it must
-  # live here, not on the WorkstationConfig. A browser IDE needs real headroom.
+  # providerConfig is read from the Workstation spec ONLY — never merged from a
+  # config layer — so VM sizing has to live here.
   providerConfig:
     memory: 6   # GiB
     cpus: 2

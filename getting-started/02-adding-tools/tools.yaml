@@ -1,8 +1,3 @@
-# A reusable layer of software, attached by LABEL rather than by name.
-#
-# Notice the selector does not name a workstation. It says "any workstation
-# labelled example: hello", which is what lets the same config land on your
-# machine today and a teammate's tomorrow.
 apiVersion: workstations.ringleader.dev/v1
 kind: WorkstationConfig
 metadata:
@@ -11,14 +6,11 @@ metadata:
 spec:
   selector:
     matchLabels:
-      example: hello
+      example: hello   # any workstation carrying the label, not one named machine
 
-  # OS packages. A bare name is a system package; an object can pin a version or
-  # install from npm instead.
-  packages:
+  packages:            # a bare name is a system package; an object can pin a version or use npm
     - git
     - ripgrep
 
-  # Curated install recipes, run inside the VM by the devtool registry.
-  devtools:
+  devtools:            # curated install recipes, run inside the VM
     - name: nodejs

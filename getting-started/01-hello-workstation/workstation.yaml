@@ -1,16 +1,6 @@
-# The smallest possible Ringleader workstation.
-#
-# An empty spec is deliberate: with nothing specified, Ringleader chooses where
-# to run the workstation and fills in sensible defaults, so you get a clean
-# Linux machine without deciding anything yourself.
-#
-#   rl apply -f workstation.yaml
-#   rl workstation wait hello --for Ready --timeout 10m -n local
-#   rl shell hello -n local
 apiVersion: workstations.ringleader.dev/v1
 kind: Workstation
 metadata:
   name: hello
-  # The reserved `local` namespace is where this machine's own runtime lives.
-  namespace: local
-spec: {}
+  namespace: local   # the reserved namespace; it never leaves this machine
+spec: {}             # empty on purpose: Ringleader picks the provider and the defaults

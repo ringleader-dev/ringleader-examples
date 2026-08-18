@@ -87,7 +87,9 @@ devtool and the `LocalBinding` in the manifest doing their job.
 
 Then ask:
 
-> What is a Virtual MCP Server and how do I use it with ToolHive?
+```
+What is a Virtual MCP Server and how do I use it with ToolHive?
+```
 
 Claude Code answers by **searching ToolHive's documentation through the MCP
 server** rather than from memory. That round trip runs from the agent to the MCP

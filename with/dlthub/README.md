@@ -43,10 +43,12 @@ devtool and the `LocalBinding` in the manifest doing their job.
 `dlt` is already installed and on the path, so the agent can get straight to
 work. Give it something like:
 
-> Using dlt, write and run a pipeline that loads the current Hacker News top
-> stories into a local SQLite database called `hackernews.db`. Use the
-> sqlalchemy destination, and merge on the story id so a second run refreshes
-> rows rather than duplicating them.
+```
+Using dlt, write and run a pipeline that loads the current Hacker News top
+stories into a local SQLite database called hackernews.db. Use the
+sqlalchemy destination, and merge on the story id so a second run refreshes
+rows rather than duplicating them.
+```
 
 Then look at what it produced:
 

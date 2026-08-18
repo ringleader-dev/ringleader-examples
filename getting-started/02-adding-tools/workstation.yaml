@@ -1,12 +1,8 @@
-# The same workstation as example 01, now carrying a label.
-#
-# The label is just a handle. It means nothing on its own. It exists so a
-# WorkstationConfig can find this machine without naming it.
 apiVersion: workstations.ringleader.dev/v1
 kind: Workstation
 metadata:
   name: hello
   namespace: local
   labels:
-    example: hello
+    example: hello   # the handle the WorkstationConfig below finds it by
 spec: {}

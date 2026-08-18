@@ -1,18 +1,3 @@
-# A Ringleader workstation running Stacklok's ToolHive, for hosting MCP servers.
-#
-# Why the two fit: ToolHive runs each MCP server in a container, so it needs a
-# container runtime. Ringleader gives you a box that HAS one, declared in the
-# same file as the tooling, and the MCP servers an agent can reach become part
-# of the environment definition rather than something set up by hand per laptop.
-#
-#   rl apply -f toolhive-box.yaml
-#   rl workstation wait toolhive-box --for condition=Configured --timeout 20m -n local
-#   rl shell toolhive-box -n local
-#   thv version && thv registry list
-#
-# Clean up:
-#
-#   rl workstation delete -f toolhive-box.yaml -y
 apiVersion: workstations.ringleader.dev/v1
 kind: Workstation
 metadata:
@@ -21,8 +6,7 @@ metadata:
   labels:
     role: mcp-host
 spec:
-  # ToolHive pulls and runs container images; give it room.
-  providerConfig:
+  providerConfig:      # ToolHive pulls and runs container images; give it room
     memory: 8   # GiB
     cpus: 4
 ---
@@ -36,11 +20,7 @@ spec:
     matchLabels:
       role: mcp-host
 
-  # Pinned explicitly. The install script below uses `dpkg --print-architecture`
-  # to pick the release archive, which only exists on Debian and Ubuntu, so
-  # leaving the image to the provider default would make this example depend on
-  # which provider you happen to be running.
-  image:
+  image:               # pinned: the install script below needs `dpkg --print-architecture`
     os: linux
     distribution: debian
     version: "13"
@@ -51,36 +31,25 @@ spec:
     - ca-certificates
 
   devtools:
-    # The container runtime ToolHive requires. This is the dependency that makes
-    # a Ringleader workstation a natural home for it.
-    - name: docker
-    # Optional, but a common pairing: an agent to actually drive the MCP servers.
-    - name: nodejs
-    # YOUR AGENT. Swap for `codex`; ToolHive registers either one (see
-    # `thv client status` for the full list of clients it knows about).
-    - name: claude-code
-    # Needed so the agent's sign-in can open on YOUR machine. Without this (and
-    # the LocalBinding below) `claude` prints a URL the VM cannot open and you
-    # have to copy it across by hand.
-    - name: passthrough-www-browser
+    - name: docker                   # the container runtime ToolHive requires
+    - name: nodejs                   # the agent below installs through Node.js
+    - name: claude-code              # YOUR AGENT — swap for `codex`; ToolHive registers either
+    - name: passthrough-www-browser  # opt-in: lets the agent's sign-in open on your machine
 
   scripts:
-    # Installed from the official release archive rather than Homebrew, because
-    # this is a Debian box. VERSION IS PINNED ON PURPOSE: a reproducible
-    # environment is the point, so bump it deliberately rather than tracking
-    # `latest`. Releases: https://github.com/stacklok/toolhive/releases
     - name: install-toolhive
       phase: system
       runPolicy: onChange
       failOnError: true
       timeoutSeconds: 300
       env:
+        # Pinned on purpose — a reproducible environment is the point. Bump it deliberately.
+        # Releases: https://github.com/stacklok/toolhive/releases
         THV_VERSION: "0.42.1"
       content: |
         set -euo pipefail
 
-        # Skip if this exact version is already installed, so the step is cheap
-        # to re-run and only does work when the pin above changes.
+        # Skip if this exact version is already installed, so re-applying is cheap.
         if command -v thv >/dev/null 2>&1 && thv version 2>/dev/null | grep -q "${THV_VERSION}"; then
           echo "thv ${THV_VERSION} already installed"
           exit 0
@@ -100,12 +69,8 @@ spec:
 
         thv version
 ---
-# Sign-in happens in YOUR browser, even though the agent runs in the VM.
-#
-# Two halves make that work: autoForward carries the VM's listening ports back to
-# this device so the OAuth callback can land, and urlForward lets the VM ask your
-# host to open a URL. The same pair appears in environments/ai-coding-agent, and
-# any example that expects you to authenticate something inside the box needs it.
+# Sign-in opens in YOUR browser: autoForward carries the VM's ports back so the
+# OAuth callback can land, and urlForward lets the VM ask your host to open the page.
 apiVersion: core.ringleader.dev/v1
 kind: LocalBinding
 metadata:

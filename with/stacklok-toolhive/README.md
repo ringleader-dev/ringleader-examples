@@ -138,10 +138,10 @@ images.
 
 `toolhive-box-gcp.yaml` is this same box on a GCP VM. Compare the two files and
 the entire difference is placement: a namespace that is not `local`,
-`requirements: ["provider:gcp"]`, a `providerConfig` for sizing, and a `ttl` so a
-billing VM cannot outlive your attention. The container runtime, `thv`, the MCP
-server and the agent are identical, which is the argument for describing an
-environment rather than a machine.
+`requirements: ["provider:gcp"]`, a `providerConfig` for sizing, and a `lifecycle`
+block that powers the VM down once nobody is using it. The container runtime,
+`thv`, the MCP server and the agent are identical, which is the argument for
+describing an environment rather than a machine.
 
 It needs a namespace of your own, a CloudIdentity for gcp in it, and the label
 that CloudIdentity selects on. That label is the one thing you cannot copy from
@@ -154,7 +154,8 @@ running it from a link:
 
 ```bash
 curl -O https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/stacklok-toolhive/toolhive-box-gcp.yaml
-# edit `your-namespace` and the CloudIdentity label in all three documents, then:
+# edit `your-namespace` and the CloudIdentity label in all three documents
+# (and `lifecycle.idle.processes`, if you swapped the agent for `codex`), then:
 rl apply -f toolhive-box-gcp.yaml
 rl workstation wait toolhive-box --for condition=Configured --timeout 20m -n your-namespace
 rl shell toolhive-box -n your-namespace
@@ -163,10 +164,26 @@ rl shell toolhive-box -n your-namespace
 Every step above is unchanged from there: the registry, the MCP server, the agent
 and the sign-in all behave the same.
 
-**A cloud VM bills until it is deleted**, and this box is the most expensive in the
-repository, since it carries a container runtime and pulls images. The manifest's
-`ttl: 8h` / `ttlAction: delete` is the backstop that runs even if you close your
-laptop and forget; deleting it yourself is faster and cheaper:
+**A cloud VM bills while it runs, and its disk bills until you delete it** — and this
+box is the most expensive in the repository, since it carries a container runtime and
+pulls images. The control that does the work is `lifecycle.idle`: two hours in which
+nothing holds an SSH session open and no `claude` is running, and Ringleader stops the
+box, with no client attached and whether or not you are watching.
+
+Note what that deliberately does not count. The MCP server `thv run` leaves behind is a
+detached container, so a box sitting there serving nothing still goes down — which is the
+point, but it means the server is not necessarily back when the box is. Starting it again
+is cheap, since the image is already pulled:
+
+```bash
+rl workstation start toolhive-box -n your-namespace
+# then check `thv list`, and `thv run toolhive-doc-mcp` again if it is not running
+```
+
+`ttl: 8h` / `ttlAction: stop` sits underneath as a hard ceiling. It is measured from
+when the box was created and moved by nothing, so it stops the box at eight hours
+whether or not you are using it — raise it if your sessions run longer than that.
+Neither control deletes the box, so deleting it yourself is what ends the disk bill:
 
 ```bash
 rl workstation delete -f toolhive-box-gcp.yaml -y

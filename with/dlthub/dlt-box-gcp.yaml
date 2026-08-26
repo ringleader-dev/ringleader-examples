@@ -27,10 +27,30 @@ spec:
       machineType: n2-standard-2
       diskGiB: 50
 
-  # A cloud VM bills until it is deleted. Ringleader enforces this with no client
-  # running, so the box goes away even if you close your laptop and forget.
-  ttl: 8h
-  ttlAction: delete
+  # A cloud VM bills while it runs, and what should power it down is nobody USING
+  # it rather than a deadline. So the idle policy is the control here and `ttl` is
+  # the backstop it always was. Ringleader evaluates both with no client running,
+  # so they still fire if you close your laptop and forget.
+  lifecycle:
+    idle:
+      timeout: 2h                # stop the box once it has been idle this long
+      sshSessions: true          # an `rl shell` or `rl tmux` session means in use
+      processes: ["claude"]      # ...and so does the agent, left running unattended
+      # EVERY condition here must agree the box is idle before the clock starts, so
+      # declaring another can only make the box harder to stop. Two gaps to know
+      # about: a PTY-less session (VS Code Remote-SSH, `scp`, `ssh box <cmd>`) is not
+      # an `sshSessions` hit, and neither is a DETACHED tmux; the process above covers
+      # those whenever the agent is what is running, and a `ports` or `checkCommand`
+      # condition covers you when it is not.
+      # SWAPPED THE AGENT for `codex`? Change this name with it. The probe compares
+      # the executable name exactly, so `claude` never matches a `codex` process — it
+      # would just quietly stop holding the box up.
+      # `stop` is the only action there is; nothing here can delete your box.
+    # And a hard ceiling underneath it, measured from when the box was created and
+    # moved by nothing — not a stop, not a start. It stops the box at 8h whether or
+    # not somebody is using it, so raise it if you run longer sessions than that.
+    ttl: 8h
+    ttlAction: stop              # stop, not delete: the box is yours to start again
 
 ---
 apiVersion: workstations.ringleader.dev/v1

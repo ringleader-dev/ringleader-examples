@@ -1,30 +1,30 @@
-# The same dlt workstation, running in Google Cloud instead of on your laptop.
+# The same dlt workstation, running in Azure instead of on your laptop.
 #
-# Apply it from this link, signed in to Ringleader, with a CloudIdentity for gcp
+# Apply it from this link, signed in to Ringleader, with a CloudIdentity for azure
 # in your namespace. Nothing below names a namespace: the box lands in the one
 # your login gave you, the same one a bare `rl get workstation` lists.
 #
-#   rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/dlthub/dlt-box-gcp.yaml
+#   rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/dlthub/dlt-box-azure.yaml
 #
-# Setting up the cloud side, once per organization: https://docs.ringleader.dev/cloud-onboarding/gcp/
+# Setting up the cloud side, once per organization: https://docs.ringleader.dev/cloud-onboarding/azure/
 apiVersion: workstations.ringleader.dev/v1
 kind: Workstation
 metadata:
   name: dlt-box
   labels:
     role: data-pipeline
-    # THE LABEL THAT PICKS YOUR CloudIdentity, which carries the project, zone and network.
-    # `cloud: gcp` is the label the onboarding guide sets up. If your administrator
+    # THE LABEL THAT PICKS YOUR CloudIdentity, which carries the subscription, resource group, location and subnet.
+    # `cloud: azure` is the label the onboarding guide sets up. If your administrator
     # chose another, the box stops with the Ready reason CloudIdentityNotMatched and
     # `rl workstation describe dlt-box` names the fix. The README has the steps.
-    cloud: gcp
+    cloud: azure
 spec:
-  requirements: ["provider:gcp"]   # chooses the provider; the label above chooses the credentials
+  requirements: ["provider:azure"]   # chooses the provider; the label above chooses the credentials
 
   providerConfig:      # sizing lives HERE only. A WorkstationConfig cannot set it.
-    gcp:
-      machineType: n2-standard-2   # 2 vCPU, 8 GiB
-      diskGiB: 50
+    azure:
+      size: Standard_D2s_v5        # 2 vCPU, 8 GiB
+      osDiskGiB: 50
 
   # A cloud VM bills while it runs, and what should power it down is nobody USING
   # it rather than a deadline. So the idle policy is the control here and `ttl` is

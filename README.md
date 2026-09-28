@@ -65,13 +65,6 @@ To edit an example rather than run it, take a copy:
 git clone https://github.com/ringleader-dev/ringleader-examples.git
 ```
 
-Or fetch a single file. That is what the one example needing edits before it
-will run asks you to do:
-
-```bash
-curl -O https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/dlthub/dlt-box-gcp.yaml
-```
-
 ## The idea
 
 Describe the machine, the tools, and the agent your project needs in one file,
@@ -112,8 +105,8 @@ account needed.
 ## Conventions
 
 - Examples use the reserved **`local`** namespace, so they run against your
-  machine's own runtime and never touch a control plane. Drop it to let
-  Ringleader place the workstation elsewhere.
+  machine's own runtime and never touch a control plane. The cloud variants name
+  no namespace at all, so they land in the one your login gave you.
 - **The base image is pinned** on every example that assumes anything about the
   distribution, and third-party tool **versions are pinned**.
   An example that silently changed under you would not be much of an argument

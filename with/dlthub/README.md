@@ -147,8 +147,8 @@ devtools:
 `claude-code` and `codex` are both in the devtool registry. Everything else here
 is agent-agnostic: Node, the browser passthrough, and the LocalBinding are what
 *any* agent needs to run and to sign in. The one place the agent's name appears
-twice is the GCP variant, whose idle policy names the agent's process so that a
-long unattended run holds the box up — swap the agent there and change
+twice is the cloud variants, whose idle policy names the agent's process so that a
+long unattended run holds the box up. Swap the agent there and change
 `lifecycle.idle.processes` with it. For an agent that is not in the
 registry but ships an npm CLI, use `packages` instead:
 
@@ -182,33 +182,50 @@ Everything that turns this from a demo into a real pipeline is in the manifest,
 not in `pipeline.py`. The manifest is commented: read it for why the virtualenv
 sits where it does, and why the dlt version and the base image are pinned.
 
-**Run it in the cloud.** `dlt-box-gcp.yaml` is this same box on a GCP VM. Compare
-the two files and the entire difference is placement: a namespace that is not
-`local`, `requirements: ["provider:gcp"]`, a `providerConfig` for sizing, and a
+**Run it in the cloud.** `dlt-box-gcp.yaml`, `dlt-box-aws.yaml` and
+`dlt-box-azure.yaml` are this same box on a cloud VM. Compare any of them with the
+local file and the entire difference is placement: no namespace, a `requirements`
+line naming the provider, a `providerConfig` for the machine size and disk, and a
 `lifecycle` block that powers the VM down once nobody is using it. The tools, the
-pipeline, the agent and the dashboard are byte-identical, which is the argument
-for describing an environment rather than a machine.
+pipeline, the agent and the dashboard are byte-identical, which is the argument for
+describing an environment rather than a machine.
 
-It needs a namespace of your own, a CloudIdentity for gcp in it, and the label
-that CloudIdentity selects on. That label is the one thing you cannot copy from
-us: it is how the project and zone reach your VM, and if nothing matches you get
-`providerConfig.gcp requires both project and zone`, which names the symptom
-rather than the cause. The manifest says how to find yours.
+They apply from a link, like the local one. Two things have to be true first: you
+are signed in to Ringleader (`rl auth status` says so), and your namespace has a
+CloudIdentity for the cloud you pick, which is what onboarding that cloud creates.
+Nothing in the file names a namespace. The box lands in the one your login gave
+you, and `rl namespace use` with no argument prints which that is.
 
-Because those are edits you make before applying, this is the one example in the
-repository to download rather than run from a link:
+```bash
+rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/dlthub/dlt-box-gcp.yaml
+rl workstation wait dlt-box --for condition=Configured --timeout 20m
+rl shell dlt-box
+```
+
+Swap `gcp` for `aws` or `azure` in the URL and nothing else changes. The three files
+declare the same box, `dlt-box`, so run one cloud at a time or rename it. The project,
+zone, region, subnet and network all come from the CloudIdentity, so the manifest
+names none of them. Everything after the shell opens is the same as the local box:
+the agent, the pipeline and the dashboard are unchanged.
+
+**If the box stops with the Ready reason `CloudIdentityNotMatched`, the label did
+not match.** A CloudIdentity picks the workstations it applies to by label, and
+these files carry `cloud: gcp`, `cloud: aws` or `cloud: azure`, the label the
+onboarding guides set up. If your administrator chose a different one, the box's
+status says so:
+
+```bash
+rl workstation describe dlt-box            # names the labels the box carries and the fix
+rl get cloudidentity -o yaml               # spec.selector.matchLabels is the label to use
+```
+
+Put that label on the Workstation, in a copy of the file, and apply the copy:
 
 ```bash
 curl -O https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/dlthub/dlt-box-gcp.yaml
-# edit `your-namespace` and the CloudIdentity label in all three documents
-# (and `lifecycle.idle.processes`, if you swapped the agent for `codex`), then:
+# change `cloud: gcp` under metadata.labels to the label your CloudIdentity selects on
 rl apply -f dlt-box-gcp.yaml
-rl workstation wait dlt-box --for condition=Configured --timeout 20m -n your-namespace
-rl shell dlt-box -n your-namespace
 ```
-
-Everything after that is the same as the local box: the agent, the pipeline and the
-dashboard are unchanged.
 
 **A cloud VM bills while it runs, and its disk bills until you delete it.** The control
 that does the work is `lifecycle.idle`: two hours in which nothing holds an SSH session
@@ -217,21 +234,23 @@ client attached, so it still happens if you close your laptop and forget. Stoppi
 reversible, and the virtualenv, `pipeline.py` and `hackernews.db` are all still there:
 
 ```bash
-rl workstation start dlt-box -n your-namespace
+rl workstation start dlt-box
 ```
 
 `ttl: 8h` / `ttlAction: stop` sits underneath as a hard ceiling. It is measured from
 when the box was created and moved by nothing, so it stops the box at eight hours
-whether or not you are using it — raise it if your sessions run longer than that.
-Neither control deletes the box, so deleting it yourself is what ends the disk bill:
+whether or not you are using it. Raise it if your sessions run longer than that.
+Neither control deletes the box, so deleting it yourself is what ends the disk bill,
+and the same link that created it removes it:
 
 ```bash
-rl workstation delete -f dlt-box-gcp.yaml -y
+rl workstation delete -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/dlthub/dlt-box-gcp.yaml -y
 ```
 
-If you have not onboarded a cloud yet, start with the
-[GCP guide](https://docs.ringleader.dev/cloud-onboarding/gcp/). Azure and AWS are
-the same file with a different `provider:` and config block.
+If you have not onboarded a cloud yet, start with the guide for yours:
+[Google Cloud](https://docs.ringleader.dev/cloud-onboarding/gcp/),
+[AWS](https://docs.ringleader.dev/cloud-onboarding/aws/) or
+[Azure](https://docs.ringleader.dev/cloud-onboarding/azure/).
 
 **A real destination.** Swap the extra in the install script:
 

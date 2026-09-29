@@ -1,30 +1,29 @@
 # The same ToolHive workstation, running in Google Cloud instead of on your laptop.
 #
-# BEFORE THIS WILL WORK, replace `your-namespace` in ALL THREE documents below and
-# set the label your own CloudIdentity selects on (see the comment on it). The
-# README explains both, and https://docs.ringleader.dev/cloud-onboarding/gcp/ has
-# the onboarding. Because those are edits, download this one rather than applying
-# it from a link:
+# Apply it from this link, signed in to Ringleader, with a CloudIdentity for gcp
+# in your namespace. Nothing below names a namespace: the box lands in the one
+# your login gave you, the same one a bare `rl get workstation` lists.
 #
-#   curl -O https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/stacklok-toolhive/toolhive-box-gcp.yaml
+#   rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/stacklok-toolhive/toolhive-box-gcp.yaml
+#
+# Setting up the cloud side, once per organization: https://docs.ringleader.dev/cloud-onboarding/gcp/
 apiVersion: workstations.ringleader.dev/v1
 kind: Workstation
 metadata:
   name: toolhive-box
-  namespace: your-namespace
   labels:
     role: mcp-host
-    # THE LABEL THAT PICKS YOUR CloudIdentity — the one thing here you cannot copy
-    # from us. Find yours with `rl get cloudidentity -n <your-namespace> -o yaml`
-    # and use its spec.selector.matchLabels. If nothing matches, provisioning fails
-    # with `providerConfig.gcp requires both project and zone`.
+    # THE LABEL THAT PICKS YOUR CloudIdentity, which carries the project, zone and network.
+    # `cloud: gcp` is the label the onboarding guide sets up. If your administrator
+    # chose another, the box stops with the Ready reason CloudIdentityNotMatched and
+    # `rl workstation describe toolhive-box` names the fix. The README has the steps.
     cloud: gcp
 spec:
   requirements: ["provider:gcp"]   # chooses the provider; the label above chooses the credentials
 
-  providerConfig:      # sizing lives HERE only — a WorkstationConfig cannot set it
+  providerConfig:      # sizing lives HERE only. A WorkstationConfig cannot set it.
     gcp:
-      machineType: n2-standard-4
+      machineType: n2-standard-4   # 4 vCPU, 16 GiB: ToolHive pulls and runs container images
       diskGiB: 60
 
   # A cloud VM bills while it runs, and what should power it down is nobody USING
@@ -43,11 +42,11 @@ spec:
       # those whenever the agent is what is running, and a `ports` or `checkCommand`
       # condition covers you when it is not.
       # SWAPPED THE AGENT for `codex`? Change this name with it. The probe compares
-      # the executable name exactly, so `claude` never matches a `codex` process — it
+      # the executable name exactly, so `claude` never matches a `codex` process. It
       # would just quietly stop holding the box up.
       # `stop` is the only action there is; nothing here can delete your box.
     # And a hard ceiling underneath it, measured from when the box was created and
-    # moved by nothing — not a stop, not a start. It stops the box at 8h whether or
+    # moved by nothing, not a stop and not a start. It stops the box at 8h whether or
     # not somebody is using it, so raise it if you run longer sessions than that.
     ttl: 8h
     ttlAction: stop              # stop, not delete: the box is yours to start again
@@ -57,7 +56,6 @@ apiVersion: workstations.ringleader.dev/v1
 kind: WorkstationConfig
 metadata:
   name: toolhive
-  namespace: your-namespace
 spec:
   selector:
     matchLabels:
@@ -118,7 +116,6 @@ apiVersion: core.ringleader.dev/v1
 kind: LocalBinding
 metadata:
   name: toolhive-forward
-  namespace: your-namespace
 spec:
   enabled: true
   workstationSelector:

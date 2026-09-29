@@ -137,32 +137,36 @@ images.
 ## Run it in the cloud
 
 `toolhive-box-gcp.yaml` is this same box on a GCP VM. Compare the two files and
-the entire difference is placement: a namespace that is not `local`,
-`requirements: ["provider:gcp"]`, a `providerConfig` for sizing, and a `lifecycle`
-block that powers the VM down once nobody is using it. The container runtime,
-`thv`, the MCP server and the agent are identical, which is the argument for
-describing an environment rather than a machine.
+the entire difference is placement: no namespace, `requirements: ["provider:gcp"]`,
+a `providerConfig` for the machine size and disk, and a `lifecycle` block that
+powers the VM down once nobody is using it. The container runtime, `thv`, the MCP
+server and the agent are identical, which is the argument for describing an
+environment rather than a machine.
 
-It needs a namespace of your own, a CloudIdentity for gcp in it, and the label
-that CloudIdentity selects on. That label is the one thing you cannot copy from
-us: it is how the project and zone reach your VM, and if nothing matches you get
-`providerConfig.gcp requires both project and zone`, which names the symptom
-rather than the cause. The manifest says how to find yours.
-
-Because those are edits you make before applying, download this one rather than
-running it from a link:
+It applies from a link, like the local one. Two things have to be true first: you
+are signed in to Ringleader (`rl auth status` says so), and your namespace has a
+CloudIdentity for GCP, which is what [onboarding Google
+Cloud](https://docs.ringleader.dev/cloud-onboarding/gcp/) creates. Nothing in the
+file names a namespace. The box lands in the one your login gave you, and
+`rl namespace use` with no argument prints which that is.
 
 ```bash
-curl -O https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/stacklok-toolhive/toolhive-box-gcp.yaml
-# edit `your-namespace` and the CloudIdentity label in all three documents
-# (and `lifecycle.idle.processes`, if you swapped the agent for `codex`), then:
-rl apply -f toolhive-box-gcp.yaml
-rl workstation wait toolhive-box --for condition=Configured --timeout 20m -n your-namespace
-rl shell toolhive-box -n your-namespace
+rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/stacklok-toolhive/toolhive-box-gcp.yaml
+rl workstation wait toolhive-box --for condition=Configured --timeout 20m
+rl shell toolhive-box
 ```
 
 Every step above is unchanged from there: the registry, the MCP server, the agent
 and the sign-in all behave the same.
+
+**If the box stops with the Ready reason `CloudIdentityNotMatched`, the label did
+not match.** A CloudIdentity picks the workstations it applies to by label, and this
+file carries `cloud: gcp`, the label the onboarding guide sets up. If your
+administrator chose a different one, `rl workstation describe toolhive-box` says
+so and `rl get cloudidentity -o yaml` shows the label under
+`spec.selector.matchLabels`. Put that label on the Workstation in a copy of the
+file, and apply the copy. The [dltHub example](../dlthub/#taking-it-further) shows
+the three commands.
 
 **A cloud VM bills while it runs, and its disk bills until you delete it** — and this
 box is the most expensive in the repository, since it carries a container runtime and
@@ -176,22 +180,22 @@ point, but it means the server is not necessarily back when the box is. Starting
 is cheap, since the image is already pulled:
 
 ```bash
-rl workstation start toolhive-box -n your-namespace
+rl workstation start toolhive-box
 # then check `thv list`, and `thv run toolhive-doc-mcp` again if it is not running
 ```
 
 `ttl: 8h` / `ttlAction: stop` sits underneath as a hard ceiling. It is measured from
 when the box was created and moved by nothing, so it stops the box at eight hours
-whether or not you are using it — raise it if your sessions run longer than that.
-Neither control deletes the box, so deleting it yourself is what ends the disk bill:
+whether or not you are using it. Raise it if your sessions run longer than that.
+Neither control deletes the box, so deleting it yourself is what ends the disk bill,
+and the same link that created it removes it:
 
 ```bash
-rl workstation delete -f toolhive-box-gcp.yaml -y
+rl workstation delete -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/stacklok-toolhive/toolhive-box-gcp.yaml -y
 ```
 
-If you have not onboarded a cloud yet, start with the
-[GCP guide](https://docs.ringleader.dev/cloud-onboarding/gcp/). Azure and AWS are
-the same file with a different `provider:` and config block.
+Azure and AWS are the same file with a different provider and sizing block. The
+[dltHub example](../dlthub/) has all three.
 
 ## Going further
 

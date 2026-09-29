@@ -23,7 +23,7 @@ spec:
 
   providerConfig:      # sizing lives HERE only. A WorkstationConfig cannot set it.
     azure:
-      size: Standard_D2s_v5        # 2 vCPU, 8 GiB
+      size: Standard_D2s_v3        # 2 vCPU, 8 GiB
       osDiskGiB: 50
 
   # A cloud VM bills while it runs, and what should power it down is nobody USING

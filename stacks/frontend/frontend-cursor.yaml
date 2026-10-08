@@ -1,0 +1,41 @@
+# Front-end stack with the Cursor CLI. Add starter-app.yaml for a ready-made React app.
+apiVersion: workstations.ringleader.dev/v1
+kind: Workstation
+metadata:
+  name: frontend-cursor
+  namespace: local
+  labels:
+    stack: frontend          # starter-app.yaml attaches by this label
+    agent: cursor-agent
+spec:
+  providerConfig:            # memory and disk in GiB
+    cpus: 4
+    memory: 6
+    disk: 30
+
+  image:
+    os: linux
+    distribution: debian
+    version: "13"
+
+  packages:
+    - git
+    - curl
+    - jq
+    - ripgrep
+
+  devtools:
+    - name: nodejs
+      version: "24"
+    - name: gh
+    - name: playwright               # headless Chromium for browser tests
+    - name: cursor-agent             # the agent
+    - name: passthrough-www-browser  # sign-in pages open in your own browser
+
+  defaultLocalBinding:       # forward the workstation's ports to your machine
+    enabled: true
+    autoForward:
+      forwardAll: true
+    urlForward:
+      enabled: true
+      open: true

@@ -1,0 +1,36 @@
+# Starter app for the front-end stack: a Vite, React and TypeScript project in ~/app.
+# Apply it beside any frontend-*.yaml file. It attaches to every workstation labeled stack: frontend.
+apiVersion: workstations.ringleader.dev/v1
+kind: WorkstationConfig
+metadata:
+  name: frontend-starter-app
+  namespace: local
+spec:
+  selector:
+    matchLabels:
+      stack: frontend
+
+  ports:
+    - 5173                   # the Vite dev server
+
+  scripts:
+    - name: create-starter-app
+      phase: user            # runs once, as you, in your home directory
+      content: |
+        set -eu
+        [ -d "$HOME/app" ] && exit 0
+        cd "$HOME"
+        npx --yes create-vite@9.2.1 app --template react-ts --no-interactive
+        cd app
+        # Listen on 127.0.0.1, which is where the forward to your machine connects.
+        cat > vite.config.ts <<'EOF'
+        import react from '@vitejs/plugin-react'
+        import { defineConfig } from 'vite'
+
+        export default defineConfig({
+          plugins: [react()],
+          server: { host: '127.0.0.1' },
+        })
+        EOF
+        npm install
+        git init -q -b main

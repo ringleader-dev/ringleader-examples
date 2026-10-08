@@ -23,6 +23,15 @@ New to Ringleader? These build on each other, in order.
 | [02 · Adding tools](getting-started/02-adding-tools/) | Install software with a reusable config that attaches by label |
 | [03 · Browser IDE](getting-started/03-browser-ide/) | VS Code in the browser, forwarded to your own machine |
 
+## Stacks
+
+Everything a developer expects for one kind of work, with the coding agent of
+your choice already installed. Pick a stack, pick your agent, paste three lines.
+
+| | |
+| -- | -- |
+| [Front-end](stacks/frontend/) | Node.js, Playwright and the GitHub CLI, with an optional React starter app |
+
 ## Environments
 
 Complete, purpose-built setups.

@@ -23,6 +23,8 @@ spec:
     - curl
     - jq
     - ripgrep
+    - type: npm
+      name: pnpm
 
   devtools:
     - name: nodejs

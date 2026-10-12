@@ -1,8 +1,8 @@
 # Front-end stack
 
 A machine set up for front-end work, with a coding agent already installed:
-Node.js 24, Playwright with Chromium, the GitHub CLI, git and ripgrep, on
-Debian 13. It runs as a virtual machine on your own computer, so the agent works
+Node.js 24 with npm and pnpm, Playwright with Chromium, the GitHub CLI, git and
+ripgrep, on Debian 13. It runs as a virtual machine on your own computer, so the agent works
 inside it and not on your laptop.
 
 Each file below is the same stack with a different agent. Pick the one you use.
@@ -57,7 +57,8 @@ Then start your agent with the command from the table. When it asks you to sign
 in, the sign-in page opens in the browser on your own machine.
 
 If a ready machine is all you wanted, you are done. The rest of this page covers
-the starter app, changing the stack, running it in a cloud, and removing it.
+the starter app, your own projects and editor, changing the stack, running it in
+a cloud, and removing it.
 
 ## Add the starter app
 
@@ -90,6 +91,79 @@ The dev server listens on `127.0.0.1` inside the workstation, set in
 connects to. If you bring your own Vite project, start it with
 `npm run dev -- --host 127.0.0.1`, or set `server.host` the same way.
 
+## Work on your own project
+
+To clone and push your own repositories, the workstation needs your SSH key, and
+your commits need your name and email. Both go in one file that you keep on your
+own machine. Save this as `my-git.yaml`, with your own key path, name and email:
+
+```yaml
+# Your SSH key and git identity, for every front-end workstation.
+apiVersion: workstations.ringleader.dev/v1
+kind: SSHKey
+metadata:
+  name: my-git-key
+  namespace: local
+spec:
+  path: ~/.ssh/id_ed25519
+  selector:
+    matchLabels:
+      stack: frontend
+---
+apiVersion: workstations.ringleader.dev/v1
+kind: WorkstationConfig
+metadata:
+  name: my-git-identity
+  namespace: local
+spec:
+  selector:
+    matchLabels:
+      stack: frontend
+  sshKnownHosts:
+    - github.com             # trust GitHub's published host keys
+  toolconfigs:
+    - id: git
+      name: git
+      config:
+        userName: Your Name
+        userEmail: you@example.com
+```
+
+Apply it once. It reaches the front-end workstations you have now and the ones
+you create later:
+
+```bash
+rl apply -f my-git.yaml
+```
+
+Then clone your project from the workstation's shell:
+
+```bash
+git clone git@github.com:your-org/your-app.git
+```
+
+Your private key stays on your machine. The workstation asks Ringleader to sign
+with it, which lets you and your agent clone and push. If your key has a
+passphrase, add `source: agent` under the key's `spec`, as
+[Keeping the key in your ssh-agent](https://docs.ringleader.dev/reference/sshkey/#keeping-the-key-in-your-ssh-agent)
+explains.
+
+## Open the code in your editor
+
+`rl code` opens a folder on the workstation in VS Code or Cursor on your own
+machine. Use it to read and edit what your agent is writing. Run `rl ssh-config
+install` first, once per machine. It adds one line to your `~/.ssh/config` so
+the editor can find your workstations:
+
+```bash
+rl ssh-config install
+rl code frontend-claude-code -n local --path /home/dev/your-app
+```
+
+Replace `frontend-claude-code` with your workstation's name, and use
+`/home/dev/app` for the starter app. If you have both editors, add
+`--editor cursor` to choose Cursor.
+
 ## What each agent comes with
 
 The four files differ only in the agent's line, the workstation's name, and its
@@ -115,6 +189,22 @@ Fork this repository, or copy a file, and edit it. Each tool is one line:
 - Add an operating-system package to `packages` by name, or an npm package as
   `{type: npm, name: ...}`.
 
+To have each new workstation clone your project by itself, add it under
+`sources` in the file's `spec`:
+
+```yaml
+sources:
+  - name: your-app
+    path: /home/dev/your-app
+    git:
+      url: git@github.com:your-org/your-app.git
+```
+
+The workstation clones it once, with the key from `my-git.yaml`, and `rl code`
+then opens it without `--path`.
+[Code sources](https://docs.ringleader.dev/reference/workstationconfig/#code-sources)
+covers branches, updates and other ways to reach a private repository.
+
 Then apply your copy from its own raw URL, and hand that URL to your team so
 everyone gets the same machine. The starter app shows a second way to add
 things: a separate file that adds to every workstation carrying a label, so one
@@ -123,8 +213,8 @@ set of additions can be shared across several stacks.
 ## Versions
 
 The base image is pinned to Debian 13 and Node.js to major version 24. Claude
-Code, Codex and Playwright install their latest release when the workstation is
-set up, because coding agents release often and you will usually want the newest
+Code, Codex, Playwright and pnpm install their latest release when the
+workstation is set up, because coding agents release often and you will usually want the newest
 one. The Cursor CLI and the Antigravity CLI install the release Ringleader
 currently pins. To pin any tool, add `version:` to its entry; each tool's page in
 the devtools reference says what a version means for that tool.
@@ -159,4 +249,6 @@ rl workstation delete -f https://raw.githubusercontent.com/ringleader-dev/ringle
 
 Leave out `starter-app.yaml` if you did not apply it. If you did, include it:
 otherwise its configuration stays behind and attaches itself to the next
-front-end workstation you create.
+front-end workstation you create. That is what you want for `my-git.yaml`, so
+leave it in place. When you no longer need it,
+`rl workstation delete -f my-git.yaml` removes it.

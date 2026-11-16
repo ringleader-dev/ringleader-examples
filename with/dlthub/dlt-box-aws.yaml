@@ -79,6 +79,15 @@ spec:
     - name: claude-code              # YOUR AGENT — swap for `codex`; nothing else changes
     - name: passthrough-www-browser  # so the agent's sign-in opens on YOUR machine
 
+  # Sign-in opens in YOUR browser: autoForward carries the VM's ports back so the
+  # OAuth callback can land, and urlForward lets the VM ask your host to open the page.
+  defaultLocalBinding:               # set up on your machine the first time the box runs
+    enabled: true
+    autoForward:
+      forwardAll: true
+    urlForward:
+      enabled: true
+
   environment:
     # Off by default here because an example is a template people copy, and a box that
     # quietly talks to a third party is not a good default to spread. Delete to opt back in.
@@ -201,19 +210,3 @@ spec:
         chmod 600 "$HOME/.dlt/secrets.toml"
 
         "$VENV/bin/dlt" --version
----
-# Sign-in opens in YOUR browser: autoForward carries the VM's ports back so the
-# OAuth callback can land, and urlForward lets the VM ask your host to open the page.
-apiVersion: core.ringleader.dev/v1
-kind: LocalBinding
-metadata:
-  name: dlt-forward
-spec:
-  enabled: true
-  workstationSelector:
-    matchName: dlt-box
-  autoForward:
-    forwardAll: true
-  urlForward:
-    enabled: true
-    open: true

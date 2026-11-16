@@ -92,12 +92,13 @@ equip a whole team.
 means your declared setup has actually landed on it. After a config change, wait
 on `Configured`.
 
-**Nothing reaches your machine unless you ask.** Port forwarding and
-browser-open passthrough are opt-in, per environment. That is why the browser IDE
-and the coding agent each declare what they expose. The same applies in reverse:
-if an example expects you to sign in to something *inside* the box, it has to
-declare the `passthrough-www-browser` devtool and a `defaultLocalBinding`, or the
-sign-in page has nowhere to open.
+**Nothing reaches your machine unless the example asks for it.** Each example
+declares the ports it forwards and whether its workstation may send links to your
+machine. An example that signs you in to something *inside* the box declares the
+`passthrough-www-browser` devtool and a `defaultLocalBinding`, which send the
+sign-in link to your machine. Your machine then decides what to do with the link,
+and by default it opens it. Run `rl urlopenrules default queue` (`rl` 0.52.4 or
+later) to have it hold each link until you approve it.
 
 ## Requirements
 

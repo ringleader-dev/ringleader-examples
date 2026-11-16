@@ -22,6 +22,14 @@ something you declared, not something it inherited from your laptop.
 
 ## Run it
 
+Before you apply the file, tell your machine to ask you before it opens a link
+from a workstation. Without this, it opens every link a workstation sends. The
+command needs `rl` 0.52.4 or later:
+
+```bash
+rl urlopenrules default queue
+```
+
 ```bash
 rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/dlthub/dlt-box.yaml
 rl workstation wait dlt-box --for condition=Configured --timeout 20m -n local
@@ -34,9 +42,12 @@ Then start your agent, inside the workstation:
 claude          # or: codex
 ```
 
-The first run asks you to sign in, and the page opens on **your** machine rather
-than printing a URL the VM cannot open. That is the `passthrough-www-browser`
-devtool and the `defaultLocalBinding` in the manifest doing their job.
+The first run asks you to sign in. The `passthrough-www-browser` devtool and the
+`defaultLocalBinding` in the manifest send the sign-in link to **your** machine.
+Run `rl urlopenrules history --pending` there, in a second terminal, and approve
+the link with `rl urlopenrules approve <id>`. Your machine opens it in your
+browser. The workstation forwards its ports to your machine, so the sign-in
+completes in the agent.
 
 ## Ask it to build the pipeline
 

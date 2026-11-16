@@ -55,4 +55,4 @@ waiting to attach to the next workstation labelled `tier: dev`.
 ## Next
 
 Something real: [an AI coding agent](../../environments/ai-coding-agent/) in a
-governed environment, able to use your own browser to sign in.
+box that reaches only the hosts it needs, signing in through your own browser.

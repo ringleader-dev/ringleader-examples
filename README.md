@@ -38,7 +38,7 @@ Complete, purpose-built setups.
 
 | | |
 | -- | -- |
-| [AI coding agent](environments/ai-coding-agent/) | Claude Code or Codex in a governed box, signing in through your own browser |
+| [AI coding agent](environments/ai-coding-agent/) | Claude Code in a box that reaches only the hosts it needs, signing in through your own browser |
 
 ## With other tools
 

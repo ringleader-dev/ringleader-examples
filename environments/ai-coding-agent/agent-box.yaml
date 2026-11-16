@@ -5,7 +5,19 @@ metadata:
   namespace: local
   labels:
     role: agent
-spec: {}
+spec:
+  provider: vz                   # hcs on Windows, qemu on Linux
+  egress:
+    enforcement: strict          # reach only these hosts
+    destinations:
+      - host: deb.debian.org       # Debian packages
+        ports: [80, 443]
+      - host: deb.nodesource.com   # Node.js
+      - host: registry.npmjs.org   # Claude Code itself
+      - host: api.anthropic.com    # Claude Code's model and account
+      - host: platform.claude.com  # Claude Code's sign-in
+  lifecycle:
+    ttl: 7d                      # deleted, disk included, a week after it was created
 ---
 apiVersion: workstations.ringleader.dev/v1
 kind: WorkstationConfig
@@ -27,12 +39,12 @@ spec:
     - ripgrep
 
   devtools:
-    - name: nodejs                   # both agents below install through Node.js
-    - name: claude-code              # YOUR AGENT — swap for `codex`; nothing else changes
+    - name: nodejs                   # Claude Code installs through Node.js
+    - name: claude-code              # the agent
     - name: passthrough-www-browser  # opt-in: capture browser opens from inside the VM
 ---
-# Sign-in opens in YOUR browser: autoForward carries the VM's ports back so the
-# OAuth callback can land, and urlForward lets the VM ask your host to open the page.
+# Sign-in: the VM's links reach your machine, and its ports are forwarded
+# so the sign-in page can reach Claude Code in the VM.
 apiVersion: core.ringleader.dev/v1
 kind: LocalBinding
 metadata:
@@ -45,5 +57,4 @@ spec:
   autoForward:
     forwardAll: true
   urlForward:
-    enabled: true
-    open: true
+    enabled: true                    # send the VM's links to your machine

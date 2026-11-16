@@ -21,6 +21,25 @@ workstation, the second waits until every tool is installed, and the third opens
 a shell inside it. Setup takes several minutes, and longer the first time, while
 the base image downloads.
 
+The files are for a Mac. On Windows, save your agent's file, change
+`provider: vz` to `provider: hcs`, and apply your copy with `rl apply -f`. On
+Linux, write `provider: qemu`. On Linux the workstation reaches the internet over
+TCP and DNS only, so ping and other UDP traffic leaving it stop.
+
+Each file starts from the settings in
+[Harden a local workstation](https://docs.ringleader.dev/security/hardening-local-workstations/).
+The workstation reaches the internet but not the machines on your local network,
+and it deletes itself, disk included, a week after you create it. Push your work
+before then, or change `lifecycle.ttl` in your copy.
+
+Before you apply a file, tell your machine to ask you before it opens a link from
+a workstation. Without this, it opens every link a workstation sends. The command
+needs `rl` 0.52.4 or later:
+
+```bash
+rl urlopenrules default queue
+```
+
 Claude Code:
 
 ```bash
@@ -54,7 +73,10 @@ rl shell frontend-antigravity -n local
 ```
 
 Then start your agent with the command from the table. When it asks you to sign
-in, the sign-in page opens in the browser on your own machine.
+in, run `rl urlopenrules history --pending` on your machine, in a second
+terminal, and approve the sign-in link with `rl urlopenrules approve <id>`. Your
+machine opens it in your browser. The workstation forwards its ports to your
+machine, so the sign-in completes in the agent.
 
 If a ready machine is all you wanted, you are done. The rest of this page covers
 the starter app, your own projects and editor, changing the stack, running it in
@@ -69,6 +91,8 @@ the start. Add it as a second `-f` on the first line of your agent's block:
 ```bash
 rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/stacks/frontend/frontend-claude-code.yaml -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/stacks/frontend/starter-app.yaml
 ```
+
+On Windows or Linux, pass your edited copy of the agent's file in place of its URL.
 
 Wait and open a shell as before, then start the dev server:
 
@@ -231,13 +255,18 @@ copy:
 1. Remove `namespace: local`, so the workstation lands in your own namespace.
 2. Add the label your organization uses to pick its cloud account, such as
    `cloud: gcp`.
-3. Add `requirements: ["provider:gcp"]` (or `aws`, or `azure`).
+3. Replace `provider: vz` with `requirements: ["provider:gcp"]` (or `aws`, or `azure`).
 4. Replace `providerConfig` with the cloud's own sizing, and add an idle policy
    so the VM stops when nobody is using it.
 
 The [dltHub GCP example](../../with/dlthub/dlt-box-gcp.yaml) makes exactly these
 changes, and [cloud onboarding](https://docs.ringleader.dev/cloud-onboarding/)
 covers connecting your cloud account, once per organization.
+
+On AWS, the `egress` block needs an Edge, and `rl apply` rejects the workstation
+if your namespace declares none.
+[Block destinations with a deny list](https://docs.ringleader.dev/reference/workstationconfig/#block-destinations-with-a-deny-list)
+says which cloud needs what.
 
 ## Clean up
 
@@ -246,6 +275,8 @@ Pass the same files to `delete` that you passed to `apply`:
 ```bash
 rl workstation delete -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/stacks/frontend/frontend-claude-code.yaml -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/stacks/frontend/starter-app.yaml -y
 ```
+
+On Windows or Linux, pass your edited copy here too.
 
 Leave out `starter-app.yaml` if you did not apply it. If you did, include it:
 otherwise its configuration stays behind and attaches itself to the next

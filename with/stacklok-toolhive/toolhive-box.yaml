@@ -36,6 +36,15 @@ spec:
     - name: claude-code              # YOUR AGENT — swap for `codex`; ToolHive registers either
     - name: passthrough-www-browser  # opt-in: lets the agent's sign-in open on your machine
 
+  # Sign-in opens in YOUR browser: autoForward carries the VM's ports back so the
+  # OAuth callback can land, and urlForward lets the VM ask your host to open the page.
+  defaultLocalBinding:               # set up on your machine the first time the box runs
+    enabled: true
+    autoForward:
+      forwardAll: true
+    urlForward:
+      enabled: true
+
   scripts:
     - name: install-toolhive
       phase: system
@@ -68,20 +77,3 @@ spec:
         install -m 0755 thv /usr/local/bin/thv
 
         thv version
----
-# Sign-in opens in YOUR browser: autoForward carries the VM's ports back so the
-# OAuth callback can land, and urlForward lets the VM ask your host to open the page.
-apiVersion: core.ringleader.dev/v1
-kind: LocalBinding
-metadata:
-  name: toolhive-forward
-  namespace: local
-spec:
-  enabled: true
-  workstationSelector:
-    matchName: toolhive-box
-  autoForward:
-    forwardAll: true
-  urlForward:
-    enabled: true
-    open: true

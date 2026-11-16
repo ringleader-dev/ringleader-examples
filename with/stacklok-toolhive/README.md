@@ -91,7 +91,7 @@ claude
 
 The first run asks you to sign in, and the page opens on **your** machine rather
 than printing a URL the VM cannot open. That is the `passthrough-www-browser`
-devtool and the `LocalBinding` in the manifest doing their job.
+devtool and the `defaultLocalBinding` in the manifest doing their job.
 
 Then ask:
 
@@ -117,10 +117,10 @@ From your own machine, not inside the box:
 rl workstation delete -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/stacklok-toolhive/toolhive-box.yaml -y
 ```
 
-Passing the manifest removes everything it declares: the workstation, the
-WorkstationConfig and the LocalBinding. This is the most expensive box in the
-repo to leave running, since it carries a container runtime and several pulled
-images.
+Passing the manifest deletes everything it declares: the workstation and the
+WorkstationConfig. Ringleader deletes the `toolhive-box` binding on your machine
+once the workstation is gone. This is the most expensive box in the repo to leave
+running, since it carries a container runtime and several pulled images.
 
 ## What the manifest does
 
@@ -131,7 +131,7 @@ images.
 | `nodejs` + `claude-code` devtools | the agent that consumes the MCP servers |
 | `passthrough-www-browser` devtool | lets the agent's sign-in open on your machine |
 | `scripts` step | installs the `thv` binary from the official release archive |
-| `LocalBinding` | carries VM ports back, and lets the VM ask your host to open a URL |
+| `defaultLocalBinding` | carries VM ports back, and lets the VM ask your host to open a URL |
 | `providerConfig` | 8 GiB / 4 CPU, since ToolHive pulls and runs container images |
 
 ## Run it in the cloud

@@ -96,7 +96,7 @@ on `Configured`.
 browser-open passthrough are opt-in, per environment. That is why the browser IDE
 and the coding agent each declare what they expose. The same applies in reverse:
 if an example expects you to sign in to something *inside* the box, it has to
-declare the `passthrough-www-browser` devtool and a `LocalBinding`, or the
+declare the `passthrough-www-browser` devtool and a `defaultLocalBinding`, or the
 sign-in page has nowhere to open.
 
 ## Requirements

@@ -42,19 +42,12 @@ spec:
     - name: nodejs                   # Claude Code installs through Node.js
     - name: claude-code              # the agent
     - name: passthrough-www-browser  # opt-in: capture browser opens from inside the VM
----
-# Sign-in: the VM's links reach your machine, and its ports are forwarded
-# so the sign-in page can reach Claude Code in the VM.
-apiVersion: core.ringleader.dev/v1
-kind: LocalBinding
-metadata:
-  name: agent-forward
-  namespace: local
-spec:
-  enabled: true
-  workstationSelector:
-    matchName: agent-box
-  autoForward:
-    forwardAll: true
-  urlForward:
-    enabled: true                    # send the VM's links to your machine
+
+  # Sign-in: the VM's links reach your machine, and its ports are forwarded
+  # so the sign-in page can reach Claude Code in the VM.
+  defaultLocalBinding:               # set up on your machine the first time the box runs
+    enabled: true
+    autoForward:
+      forwardAll: true
+    urlForward:
+      enabled: true                  # send the VM's links to your machine

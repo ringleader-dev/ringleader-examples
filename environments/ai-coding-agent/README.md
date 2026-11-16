@@ -55,14 +55,19 @@ Three parts make that work:
 - The `passthrough-www-browser` devtool stands in for the browser inside the VM.
   When Claude Code opens its sign-in link, the devtool hands the link to
   Ringleader instead. It is **opt-in**, never installed by default.
-- **`urlForward`** in the `LocalBinding` sends that link to your machine, which
-  records it. `rl urlopenrules default queue` makes your machine hold each link
-  until you approve it, so a program in the workstation cannot make your browser
-  load a page on its own. `rl urlopenrules history` lists every link and what
-  became of it.
-- **`autoForward`** forwards every port the VM listens on to your machine, not
-  only the sign-in's. Claude Code waits for the end of the sign-in on a port it
-  picks at random, so the sign-in needs it.
+- **`urlForward`**, in the WorkstationConfig's `defaultLocalBinding`, sends that
+  link to your machine, which records it. `rl urlopenrules default queue` makes
+  your machine hold each link until you approve it, so a program in the
+  workstation cannot make your browser load a page on its own.
+  `rl urlopenrules history` lists every link and what became of it.
+- **`autoForward`**, in the same `defaultLocalBinding`, forwards every port the
+  VM listens on to your machine, not only the sign-in's. Claude Code waits for
+  the end of the sign-in on a port it picks at random, so the sign-in needs it.
+
+The first time the workstation runs, Ringleader reads `defaultLocalBinding` and
+creates a binding named `agent-box` on your machine. `rl binding show -n local`
+lists its forwards. If you delete that binding, Ringleader does not create it
+again for this workstation.
 
 Claude Code also prints a sign-in link of its own. If you open that one instead,
 the sign-in page shows a code, which you paste where Claude Code asks for it.
@@ -93,8 +98,9 @@ rl workstation delete -f https://raw.githubusercontent.com/ringleader-dev/ringle
 ```
 
 Pass the manifest, not the workstation name: this file declares a
-WorkstationConfig and a LocalBinding as well, and deleting the machine alone
-would leave both behind.
+WorkstationConfig as well, and deleting the machine alone would leave it behind.
+Ringleader deletes the `agent-box` binding on your machine once the workstation
+is gone.
 
 And because the environment is a manifest, a teammate applying the same file
 gets the same tools and the same boundaries. Note that it does not yet get the

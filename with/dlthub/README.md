@@ -36,7 +36,7 @@ claude          # or: codex
 
 The first run asks you to sign in, and the page opens on **your** machine rather
 than printing a URL the VM cannot open. That is the `passthrough-www-browser`
-devtool and the `LocalBinding` in the manifest doing their job.
+devtool and the `defaultLocalBinding` in the manifest doing their job.
 
 ## Ask it to build the pipeline
 
@@ -87,10 +87,10 @@ dlt pipeline hackernews show
 ```
 
 It prints `URL: http://localhost:2718`. Open that on **your own machine**: the
-port comes back to you automatically, because the LocalBinding in this manifest
-sets `autoForward.forwardAll`. Nothing to configure, and nothing listening
-outside your laptop. Give it a few seconds after the dashboard starts, since the
-forward is established once the new port is noticed.
+port comes back to you automatically, because the `defaultLocalBinding` in this
+manifest sets `autoForward.forwardAll`. You configure nothing, and nothing listens
+outside your laptop. Wait a few seconds after the dashboard starts: the forward
+begins once Ringleader notices the new port.
 
 The dashboard shows the tables that loaded, their row counts and schemas, and it
 will run queries against the dataset, which is a faster way to check the agent's
@@ -145,8 +145,8 @@ devtools:
 ```
 
 `claude-code` and `codex` are both in the devtool registry. Everything else here
-is agent-agnostic: Node, the browser passthrough, and the LocalBinding are what
-*any* agent needs to run and to sign in. The one place the agent's name appears
+is agent-agnostic: Node, the browser passthrough, and the `defaultLocalBinding`
+are what *any* agent needs to run and to sign in. The one place the agent's name appears
 twice is the cloud variants, whose idle policy names the agent's process so that a
 long unattended run holds the box up. Swap the agent there and change
 `lifecycle.idle.processes` with it. For an agent that is not in the
@@ -287,9 +287,10 @@ reviewer can see in the diff. Delete that line to opt back in.
 rl workstation delete -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/dlthub/dlt-box.yaml -y
 ```
 
-Passing the manifest removes everything it declares: the workstation, the
-WorkstationConfig and the LocalBinding. Deleting only the workstation would leave
-the other two behind.
+Passing the manifest deletes everything it declares: the workstation and the
+WorkstationConfig. Deleting only the workstation would leave the WorkstationConfig
+behind. Ringleader deletes the `dlt-box` binding on your machine once the
+workstation is gone.
 
 ## Status
 

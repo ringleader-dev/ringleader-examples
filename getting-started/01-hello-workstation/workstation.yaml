@@ -2,5 +2,4 @@ apiVersion: workstations.ringleader.dev/v1
 kind: Workstation
 metadata:
   name: hello
-  namespace: local   # the reserved namespace; it never leaves this machine
 spec: {}             # empty on purpose: Ringleader picks the provider and the defaults

@@ -42,8 +42,8 @@ rl urlopenrules default queue
 
 ```bash
 rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/stacklok-toolhive/toolhive-box.yaml
-rl workstation wait toolhive-box --for condition=Configured --timeout 20m -n local
-rl shell toolhive-box -n local
+rl workstation wait toolhive-box --for condition=Configured --timeout 20m
+rl shell toolhive-box
 ```
 
 Everything below happens **inside** the workstation.
@@ -148,7 +148,7 @@ running, since it carries a container runtime and several pulled images.
 ## Run it in the cloud
 
 `toolhive-box-gcp.yaml` is this same box on a GCP VM. Compare the two files and
-the entire difference is placement: no namespace, `requirements: ["provider:gcp"]`,
+the entire difference is placement: `requirements: ["provider:gcp"]`,
 a `providerConfig` for the machine size and disk, and a `lifecycle` block that
 powers the VM down once nobody is using it. The container runtime, `thv`, the MCP
 server and the agent are identical, which is the argument for describing an

@@ -2,7 +2,6 @@ apiVersion: workstations.ringleader.dev/v1
 kind: WorkstationConfig
 metadata:
   name: hello-tools
-  namespace: local
 spec:
   selector:
     matchLabels:

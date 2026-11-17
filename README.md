@@ -114,9 +114,11 @@ account needed.
 
 ## Conventions
 
-- Examples use the reserved **`local`** namespace, so they run against your
-  machine's own runtime and never touch a control plane. The cloud variants name
-  no namespace at all, so they land in the one your login gave you.
+- Examples **name no namespace**. Signed in to Ringleader, a workstation lands in
+  the namespace your login gave you, so it shows up in the console beside your
+  other workstations, even when it runs on your own machine. Signed out, it lands
+  in the reserved `local` namespace, which never leaves your machine.
+  `rl namespace use` with no argument prints which namespace you are in.
 - **The base image is pinned** on every example that assumes anything about the
   distribution, and third-party tool **versions are pinned**.
   An example that silently changed under you would not be much of an argument

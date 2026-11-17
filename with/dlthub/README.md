@@ -32,8 +32,8 @@ rl urlopenrules default queue
 
 ```bash
 rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/with/dlthub/dlt-box.yaml
-rl workstation wait dlt-box --for condition=Configured --timeout 20m -n local
-rl shell dlt-box -n local
+rl workstation wait dlt-box --for condition=Configured --timeout 20m
+rl shell dlt-box
 ```
 
 Then start your agent, inside the workstation:
@@ -195,8 +195,8 @@ sits where it does, and why the dlt version and the base image are pinned.
 
 **Run it in the cloud.** `dlt-box-gcp.yaml`, `dlt-box-aws.yaml` and
 `dlt-box-azure.yaml` are this same box on a cloud VM. Compare any of them with the
-local file and the entire difference is placement: no namespace, a `requirements`
-line naming the provider, a `providerConfig` for the machine size and disk, and a
+local file and the entire difference is placement: a `requirements` line naming
+the provider, a `providerConfig` for the machine size and disk, and a
 `lifecycle` block that powers the VM down once nobody is using it. The tools, the
 pipeline, the agent and the dashboard are byte-identical, which is the argument for
 describing an environment rather than a machine.
@@ -280,7 +280,7 @@ environment:
 ```
 
 ```bash
-rl secret create bq-service-account --from-string value='<json>' -n local
+rl secret create bq-service-account --from-string value='<json>'
 ```
 
 **Telemetry.** dlt sends anonymous usage data by default, to

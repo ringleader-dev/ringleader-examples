@@ -10,7 +10,7 @@ rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples
 rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/getting-started/02-adding-tools/tools.yaml
 
 # Installing happens inside the VM, so wait for it to finish.
-rl workstation wait hello --for condition=Configured --timeout 15m -n local
+rl workstation wait hello --for condition=Configured --timeout 15m
 ```
 
 Two URLs because this example is two files, which is the point of it. If you
@@ -20,7 +20,7 @@ from this directory do the same thing.
 Then check the tools are really there:
 
 ```bash
-rl shell hello -n local
+rl shell hello
 git --version && node --version
 ```
 
@@ -55,7 +55,7 @@ does not wipe the config, and the two stay paired as long as the label matches.
 To see what a machine actually resolved to, once both are applied:
 
 ```bash
-rl workstation get-resolved-configuration hello -n local
+rl workstation get-resolved-configuration hello
 ```
 
 `git` and `nodejs` appear there even though neither is on the workstation

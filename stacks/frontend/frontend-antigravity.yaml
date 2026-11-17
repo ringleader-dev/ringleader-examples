@@ -3,7 +3,6 @@ apiVersion: workstations.ringleader.dev/v1
 kind: Workstation
 metadata:
   name: frontend-antigravity
-  namespace: local
   labels:
     stack: frontend          # starter-app.yaml attaches by this label
     agent: agy

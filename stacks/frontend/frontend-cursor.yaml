@@ -3,7 +3,6 @@ apiVersion: workstations.ringleader.dev/v1
 kind: Workstation
 metadata:
   name: frontend-cursor
-  namespace: local
   labels:
     stack: frontend          # starter-app.yaml attaches by this label
     agent: cursor-agent

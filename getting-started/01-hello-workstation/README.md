@@ -7,8 +7,8 @@ can shell into.
 
 ```bash
 rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/getting-started/01-hello-workstation/workstation.yaml
-rl workstation wait hello --for Ready --timeout 10m -n local
-rl shell hello -n local
+rl workstation wait hello --for Ready --timeout 10m
+rl shell hello
 ```
 
 That URL is `workstation.yaml` in this directory. `-f` takes a local path just as
@@ -34,7 +34,7 @@ workstation to match the file and reports `unchanged` when nothing differs, so
 there is no separate "create" and "update" to think about.
 
 **It stays.** Leaving the shell does not stop the machine. Close your laptop,
-come back tomorrow, run `rl shell hello -n local` again, and you are where you
+come back tomorrow, run `rl shell hello` again, and you are where you
 left off. That persistence is the point: the environment is a durable thing you
 return to, not something you rebuild each morning.
 
@@ -46,7 +46,7 @@ rl workstation delete -f https://raw.githubusercontent.com/ringleader-dev/ringle
 
 This is immediate and final for that machine. Its disk and state are gone.
 
-Deleting by manifest rather than by name (`rl workstation delete hello -n local`
+Deleting by manifest rather than by name (`rl workstation delete hello`
 also works) is the habit to get into from the next example onward, where a
 file declares more than one resource and the name form would leave some behind.
 

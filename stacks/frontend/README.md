@@ -44,32 +44,32 @@ Claude Code:
 
 ```bash
 rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/stacks/frontend/frontend-claude-code.yaml
-rl workstation wait frontend-claude-code --for condition=Configured --timeout 20m -n local
-rl shell frontend-claude-code -n local
+rl workstation wait frontend-claude-code --for condition=Configured --timeout 20m
+rl shell frontend-claude-code
 ```
 
 Codex:
 
 ```bash
 rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/stacks/frontend/frontend-codex.yaml
-rl workstation wait frontend-codex --for condition=Configured --timeout 20m -n local
-rl shell frontend-codex -n local
+rl workstation wait frontend-codex --for condition=Configured --timeout 20m
+rl shell frontend-codex
 ```
 
 Cursor CLI:
 
 ```bash
 rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/stacks/frontend/frontend-cursor.yaml
-rl workstation wait frontend-cursor --for condition=Configured --timeout 20m -n local
-rl shell frontend-cursor -n local
+rl workstation wait frontend-cursor --for condition=Configured --timeout 20m
+rl shell frontend-cursor
 ```
 
 Antigravity CLI:
 
 ```bash
 rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/stacks/frontend/frontend-antigravity.yaml
-rl workstation wait frontend-antigravity --for condition=Configured --timeout 20m -n local
-rl shell frontend-antigravity -n local
+rl workstation wait frontend-antigravity --for condition=Configured --timeout 20m
+rl shell frontend-antigravity
 ```
 
 Then start your agent with the command from the table. When it asks you to sign
@@ -127,7 +127,6 @@ apiVersion: workstations.ringleader.dev/v1
 kind: SSHKey
 metadata:
   name: my-git-key
-  namespace: local
 spec:
   path: ~/.ssh/id_ed25519
   selector:
@@ -138,7 +137,6 @@ apiVersion: workstations.ringleader.dev/v1
 kind: WorkstationConfig
 metadata:
   name: my-git-identity
-  namespace: local
 spec:
   selector:
     matchLabels:
@@ -181,7 +179,7 @@ the editor can find your workstations:
 
 ```bash
 rl ssh-config install
-rl code frontend-claude-code -n local --path /home/dev/your-app
+rl code frontend-claude-code --path /home/dev/your-app
 ```
 
 Replace `frontend-claude-code` with your workstation's name, and use
@@ -248,15 +246,13 @@ when the app is created, and `package-lock.json` records them.
 
 ## Run it in a cloud
 
-These files run on your own machine, in the reserved `local` namespace, with no
-account needed. To run the same stack on a cloud VM, change four things in your
-copy:
+These files run on your own machine, with no cloud account needed. To run the
+same stack on a cloud VM, change three things in your copy:
 
-1. Remove `namespace: local`, so the workstation lands in your own namespace.
-2. Add the label your organization uses to pick its cloud account, such as
+1. Add the label your organization uses to pick its cloud account, such as
    `cloud: gcp`.
-3. Replace `provider: vz` with `requirements: ["provider:gcp"]` (or `aws`, or `azure`).
-4. Replace `providerConfig` with the cloud's own sizing, and add an idle policy
+2. Replace `provider: vz` with `requirements: ["provider:gcp"]` (or `aws`, or `azure`).
+3. Replace `providerConfig` with the cloud's own sizing, and add an idle policy
    so the VM stops when nobody is using it.
 
 The [dltHub GCP example](../../with/dlthub/dlt-box-gcp.yaml) makes exactly these

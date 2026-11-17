@@ -7,7 +7,7 @@ with the port forwarded back to your machine so it feels local.
 
 ```bash
 rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/getting-started/03-browser-ide/ide-box.yaml
-rl workstation wait ide-box -n local --for condition=Configured --timeout 15m
+rl workstation wait ide-box --for condition=Configured --timeout 15m
 ```
 
 Then open **http://127.0.0.1:8080**.
@@ -49,7 +49,7 @@ rl workstation delete -f https://raw.githubusercontent.com/ringleader-dev/ringle
 ```
 
 Pass the manifest rather than the workstation name. `rl workstation delete
-ide-box -n local` removes the machine but leaves the `ide` config behind, still
+ide-box` removes the machine but leaves the `ide` config behind, still
 waiting to attach to the next workstation labelled `tier: dev`.
 
 ## Next

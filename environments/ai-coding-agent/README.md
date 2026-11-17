@@ -25,8 +25,8 @@ Then, on a Mac:
 
 ```bash
 rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/environments/ai-coding-agent/agent-box.yaml
-rl workstation wait agent-box --for condition=Configured --timeout 15m -n local
-rl shell agent-box -n local
+rl workstation wait agent-box --for condition=Configured --timeout 15m
+rl shell agent-box
 ```
 
 On Windows, save [`agent-box.yaml`](agent-box.yaml), change `provider: vz` to
@@ -65,7 +65,7 @@ Three parts make that work:
   the end of the sign-in on a port it picks at random, so the sign-in needs it.
 
 The first time the workstation runs, Ringleader reads `defaultLocalBinding` and
-creates a binding named `agent-box` on your machine. `rl binding show -n local`
+creates a binding named `agent-box` on your machine. `rl binding show`
 lists its forwards. If you delete that binding, Ringleader does not create it
 again for this workstation.
 
@@ -119,13 +119,13 @@ devtools:
 - **A different agent:** swap the `claude-code` devtool for `codex`, and replace
   the two Anthropic hosts in `egress` with the hosts Codex reaches. To find them,
   apply the file with `enforcement: audit` first, let the agent work, and run
-  `rl workstation egress agent-box -n local --suggest`. For an agent that is not
+  `rl workstation egress agent-box --suggest`. For an agent that is not
   in the registry but ships an npm CLI, put it in `packages` as
   `{type: npm, name: ...}` instead.
 - **More tools:** add to `packages` (system or npm) or `devtools`, and add the
   hosts they download from to `egress`.
-- **A cloud machine instead of local:** drop the `namespace: local` and replace
-  `provider: vz` with your cloud's provider. On a cloud, a `strict` list of
+- **A cloud machine instead of local:** replace `provider: vz` with your cloud's
+  provider. On a cloud, a `strict` list of
   hosts needs an Edge, as
   [Restricting outbound connections](https://docs.ringleader.dev/reference/workstationconfig/#restricting-outbound-connections)
   explains.

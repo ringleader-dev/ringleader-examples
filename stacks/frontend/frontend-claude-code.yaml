@@ -3,7 +3,6 @@ apiVersion: workstations.ringleader.dev/v1
 kind: Workstation
 metadata:
   name: frontend-claude-code
-  namespace: local
   labels:
     stack: frontend          # starter-app.yaml attaches by this label
     agent: claude-code

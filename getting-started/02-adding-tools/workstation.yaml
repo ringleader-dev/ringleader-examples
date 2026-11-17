@@ -2,7 +2,6 @@ apiVersion: workstations.ringleader.dev/v1
 kind: Workstation
 metadata:
   name: hello
-  namespace: local
   labels:
     example: hello   # the handle the WorkstationConfig below finds it by
 spec: {}

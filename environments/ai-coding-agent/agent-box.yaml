@@ -5,7 +5,6 @@ metadata:
   labels:
     role: agent
 spec:
-  provider: vz                   # hcs on Windows, qemu on Linux
   egress:
     enforcement: strict          # reach only these hosts
     destinations:

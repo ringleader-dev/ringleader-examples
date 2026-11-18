@@ -21,10 +21,9 @@ workstation, the second waits until every tool is installed, and the third opens
 a shell inside it. Setup takes several minutes, and longer the first time, while
 the base image downloads.
 
-The files are for a Mac. On Windows, save your agent's file, change
-`provider: vz` to `provider: hcs`, and apply your copy with `rl apply -f`. On
-Linux, write `provider: qemu`. On Linux the workstation reaches the internet over
-TCP and DNS only, so ping and other UDP traffic leaving it stop.
+The same files work on a Mac, a Windows PC and Linux, and need `rl` 0.53.0 or
+later. On Linux the workstation reaches the internet over TCP and DNS only, so
+ping and other UDP traffic leaving it stop.
 
 Each file starts from the settings in
 [Harden a local workstation](https://docs.ringleader.dev/security/hardening-local-workstations/).
@@ -33,8 +32,7 @@ and it deletes itself, disk included, a week after you create it. Push your work
 before then, or change `lifecycle.ttl` in your copy.
 
 Before you apply a file, tell your machine to ask you before it opens a link from
-a workstation. Without this, it opens every link a workstation sends. The command
-needs `rl` 0.52.4 or later:
+a workstation. Without this, it opens every link a workstation sends:
 
 ```bash
 rl urlopenrules default queue
@@ -91,8 +89,6 @@ the start. Add it as a second `-f` on the first line of your agent's block:
 ```bash
 rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/stacks/frontend/frontend-claude-code.yaml -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/stacks/frontend/starter-app.yaml
 ```
-
-On Windows or Linux, pass your edited copy of the agent's file in place of its URL.
 
 Wait and open a shell as before, then start the dev server:
 
@@ -251,7 +247,7 @@ same stack on a cloud VM, change three things in your copy:
 
 1. Add the label your organization uses to pick its cloud account, such as
    `cloud: gcp`.
-2. Replace `provider: vz` with `requirements: ["provider:gcp"]` (or `aws`, or `azure`).
+2. Add `requirements: ["provider:gcp"]` to the `Workstation` (or `aws`, or `azure`).
 3. Replace `providerConfig` with the cloud's own sizing, and add an idle policy
    so the VM stops when nobody is using it.
 
@@ -271,8 +267,6 @@ Pass the same files to `delete` that you passed to `apply`:
 ```bash
 rl workstation delete -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/stacks/frontend/frontend-claude-code.yaml -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/stacks/frontend/starter-app.yaml -y
 ```
-
-On Windows or Linux, pass your edited copy here too.
 
 Leave out `starter-app.yaml` if you did not apply it. If you did, include it:
 otherwise its configuration stays behind and attaches itself to the next

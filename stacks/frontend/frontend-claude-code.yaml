@@ -7,7 +7,6 @@ metadata:
     stack: frontend          # starter-app.yaml attaches by this label
     agent: claude-code
 spec:
-  provider: vz               # hcs on Windows, qemu on Linux
   providerConfig:            # memory and disk in GiB
     cpus: 4
     memory: 6

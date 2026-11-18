@@ -13,24 +13,23 @@ so add that host if you want the agent to use them.
 
 ## Run it
 
+You need `rl` 0.53.0 or later. The same file works on a Mac, a Windows PC and
+Linux.
+
 First, tell your machine to ask you before it opens a link from a workstation.
-Without this, it opens every link a workstation sends. The command needs `rl`
-0.52.4 or later:
+Without this, it opens every link a workstation sends:
 
 ```bash
 rl urlopenrules default queue
 ```
 
-Then, on a Mac:
+Then create the workstation:
 
 ```bash
 rl apply -f https://raw.githubusercontent.com/ringleader-dev/ringleader-examples/main/environments/ai-coding-agent/agent-box.yaml
 rl workstation wait agent-box --for condition=Configured --timeout 15m
 rl shell agent-box
 ```
-
-On Windows, save [`agent-box.yaml`](agent-box.yaml), change `provider: vz` to
-`provider: hcs`, and apply your copy. On Linux, use `provider: qemu`.
 
 Then, inside the workstation:
 
@@ -74,11 +73,12 @@ the sign-in page shows a code, which you paste where Claude Code asks for it.
 
 ## What the file allows
 
-The `Workstation` names its provider, because Ringleader enforces an egress
-policy only on a provider it knows can hold it. Its `egress` block lists the
-hosts the box may reach: Debian's package mirror, the Node.js and npm package
-hosts, and Anthropic's hosts for the model and the sign-in. Every other
-connection is refused.
+The `Workstation` names no provider. `rl apply` writes your computer's default
+provider into it when it creates the workstation, and keeps that provider when
+you apply the file again. Its `egress` block lists the hosts the workstation may
+reach: Debian's package mirror, the Node.js and npm package hosts, and
+Anthropic's hosts for the model and the sign-in. Every other connection is
+refused.
 
 `lifecycle.ttl: 7d` deletes the workstation and its disk a week after you
 create it. Push your work before then, or change the value and apply the file
@@ -124,8 +124,8 @@ devtools:
   `{type: npm, name: ...}` instead.
 - **More tools:** add to `packages` (system or npm) or `devtools`, and add the
   hosts they download from to `egress`.
-- **A cloud machine instead of local:** replace `provider: vz` with your cloud's
-  provider. On a cloud, a `strict` list of
+- **A cloud machine instead of local:** add `requirements: ["provider:gcp"]`
+  to the `Workstation`, or `aws` or `azure`. On a cloud, a `strict` list of
   hosts needs an Edge, as
   [Restricting outbound connections](https://docs.ringleader.dev/reference/workstationconfig/#restricting-outbound-connections)
   explains.
